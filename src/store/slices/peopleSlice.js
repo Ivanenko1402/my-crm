@@ -90,7 +90,7 @@ const peopleSlice = createSlice({
     },
     deletePerson: (state, action) => {
       state.people = state.people.filter(
-        person => person.userId !== action.payload.userId,
+        person => person.userId !== action.payload,
       );
     },
   },
