@@ -1,95 +1,28 @@
-import { useState } from "react";
 import { Col, Container, Form, Row, Button } from "react-bootstrap";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { Link, useParams } from "react-router-dom";
-import { actions } from "../../../store/slices/peopleSlice";
+import { useVerificationPersonForm } from "../../../Hooks/useVerificationPersonForm";
 
 export const PersonEntity = () => {
   const { people } = useSelector((state) => state.people);
-  const dispatch = useDispatch();
   const { id } = useParams();
   const person = people.find((p) => p.userId === +id) || null;
 
-  const [name, setName] = useState(person ? person.displayName : '');
-  const [isNameError, setIsNameError] = useState(false);
-  const [email, setEmail] = useState(person ? person.email : '');
-  const [isEmailError, setIsEmailError] = useState(false);
-  const [phone, setPhone] = useState(person ? person.phoneNumber : '');
-  const [isPhoneError, setIsPhoneError] = useState(false);
-  const [role, setRole] = useState(person ? person.role : 'Driver')
-
-  const [errorMessage, setErrorMessage] = useState('');
-
-  const submitForm = (event) => {
-    if (checkForm()) {
-      event.preventDefault();
-      return;
-    }
-
-    if (id === 'new') {
-      const newPerson = {
-        userId: getNewId(),
-        displayName: name,
-        email,
-        phoneNumber: phone,
-        role,
-      };
-
-      dispatch(actions.addPerson(newPerson));
-    } else {
-      const newPerson = {
-        userId: +id,
-        displayName: name,
-        email: email,
-        phoneNumber: phone,
-        role: role,
-      };
-
-      dispatch(actions.editPerson(newPerson));
-    }
-  };
-
-  function getNewId() {
-    let newId = 1;
-    const ids = people.map((p) => p.userId);
-
-    while (ids.includes(newId)) {
-      newId++;
-    }
-
-    return newId;
-  }
-
-  function checkForm() {
-    resetErrors();
-
-    if (name.length < 3) {
-      setIsNameError(true);
-      setErrorMessage("Name must be at least 3 letters");
-      return true;
-    }
-
-    if (!email) {
-      setIsEmailError(true);
-      setErrorMessage("Email cannot be empty");
-      return true;
-    }
-
-    if (phone.length < 8) {
-      setIsPhoneError(true);
-      setErrorMessage("Phone number must be at least 8 digits");
-      return true;
-    }
-
-    return false;
-  }
-
-  function resetErrors() {
-    setIsEmailError(false);
-    setIsNameError(false);
-    setIsPhoneError(false);
-    setErrorMessage("");
-  }
+  const {
+    name,
+    setName,
+    isNameError,
+    email,
+    setEmail,
+    isEmailError,
+    phone,
+    setPhone,
+    isPhoneError,
+    role,
+    setRole,
+    errorMessage,
+    submitForm,
+  } = useVerificationPersonForm(person);
 
   return (
     <Container>

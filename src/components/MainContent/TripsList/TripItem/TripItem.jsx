@@ -1,8 +1,7 @@
 import { Link } from "react-router-dom";
-import { DeleteIcon } from "../icons/DeleteIcon";
-import { InformationIcon } from "../icons/InformationIcon";
+import { InformationIcon, DeleteIcon } from "../../../icons";
 import { useDispatch } from "react-redux";
-import { actions } from "../../store/slices/tripsSlice";
+import { actions } from '../../../../store/slices/tripsSlice';
 
 export const TripItem = ({ trip, index }) => {
   const { id, from, to, driver, passengers } = trip;

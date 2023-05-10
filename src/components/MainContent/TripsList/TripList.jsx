@@ -2,11 +2,11 @@ import { useEffect, useState } from "react";
 import { Alert, Button, Table } from "react-bootstrap";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { TripItem } from "../../TripItem/TripItem";
+import { TripItem } from './TripItem';
 
 const tableHeader = ['#', 'Departure ', 'Destination', 'Driver', 'Passengers', 'Info', 'Action']
 
-export const TripColection = () => {
+export const TripList = () => {
   const { trips } = useSelector(state => state.trips);
   const [list, setList] = useState(trips);
 

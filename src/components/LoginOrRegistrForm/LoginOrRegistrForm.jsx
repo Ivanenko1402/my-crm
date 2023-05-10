@@ -177,9 +177,9 @@ export const LoginOrRegistrForm = () => {
         </Modal.Body>
         <Modal.Footer>
           {currentPage ? (
-          <Link to='/registr'>
-            Create an account
-          </Link>
+            <Link to='/registr'>
+              Create an account
+            </Link>
           ) : (
           <Link to='/login'>
              I have an account

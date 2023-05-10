@@ -1,19 +1,19 @@
 import { Route, Routes } from "react-router-dom";
-import { PeopleCollection } from "./components/MainContent/PeopleColection";
-import { TripColection } from "./components/MainContent/TripsColection";
+import { TripList } from "./components/MainContent/TripsList";
 import { PersonEntity } from "./components/MainContent/PersonEntity";
 import { TripEntity } from "./components/MainContent/TripEntity";
-import { PageNotFound } from "./components/MainContent/PageNotFound";
-import { LoginPage } from "./components/MainContent/LoginPage/LoginPage";
-import { AuthPage } from "./components/MainContent/AuthPage/AuthPage";
+import { PageNotFound } from "./components/PageNotFound";
+import { LoginPage } from "./components/LoginPage";
+import { AuthPage } from "./components/AuthPage";
+import { PersonList } from "./components/MainContent/PersonList/PersonList";
 
 export function MyRoutes() {
   return (
     <Routes>
-      <Route path="/" element={<PeopleCollection />} />
+      <Route path="/" element={<PersonList />} />
       <Route path="/people/:id" element={<PersonEntity />} />
 
-      <Route path="/trips" element={<TripColection />} />
+      <Route path="/trips" element={<TripList />} />
       <Route path="/trips/:id" element={<TripEntity />} />
 
       <Route path="/registr" element={<AuthPage />} />

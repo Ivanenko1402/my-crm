@@ -1,18 +1,17 @@
 import { useDispatch } from "react-redux";
-import { actions } from '../../store/slices/peopleSlice';
+import { actions } from '../../../../store/slices/peopleSlice';
 import { Link } from "react-router-dom";
-import { InformationIcon } from '../icons/InformationIcon';
-import { DeleteIcon } from '../icons/DeleteIcon';
+import { InformationIcon } from '../../../icons/InformationIcon';
+import { DeleteIcon } from '../../../icons/DeleteIcon';
 
-export const PeopleItem = ({ person, index }) => {
+export const PersonItem = ({ person, index }) => {
   const dispatch = useDispatch();
-  const { userId, displayName, email, phoneNumber, role } = person;
+  const { userId, displayName, phoneNumber, role } = person;
 
   return (
     <tr key={userId}>
       <td>{index + 1}</td>
       <td>{displayName}</td>
-      <td>{email}</td>
       <td>{phoneNumber}</td>
       <td>{role}</td>
       <td className="text-center">

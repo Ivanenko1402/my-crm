@@ -5,6 +5,8 @@ import { Footer } from './Footer';
 import { MyRoutes } from '../MyRoutes';
 
 function App() {
+  const isLoggedIn = true;
+
   return (
     <div className='d-flex flex-column vh-100'>
       <Header />

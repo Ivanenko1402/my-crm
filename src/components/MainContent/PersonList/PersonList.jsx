@@ -2,12 +2,13 @@ import { useEffect, useState } from "react";
 import { Table, Alert, Button } from "react-bootstrap";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { PeopleItem } from "../../PeopleItem/PeopleItem";
 
-export const PeopleCollection = () => {
+import { PersonItem } from './PersonItem';
+
+export const PersonList = () => {
   const { people } = useSelector(state => state.people);
   const [list, setList] = useState(people);
-  const tableHeader = ['#', 'Name', 'Email', 'Phone', 'Role', 'Edit', 'Delete' ];
+  const tableHeader = ['#', 'Name', 'Phone', 'Role', 'Edit', 'Delete' ];
 
   useEffect(() => {
     setList(people);
@@ -34,7 +35,7 @@ export const PeopleCollection = () => {
           </thead>
           <tbody>
             {list.map((person, index) => (
-              <PeopleItem person={person} index={index} key={person.userId} />
+              <PersonItem person={person} index={index} key={person.userId} />
             ))}
           </tbody>
         </Table>
