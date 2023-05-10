@@ -14,8 +14,9 @@ export function Header() {
       expand={false}
       className="mb-4"
     >
-      <Container fluid>
+      <Container>
         <Navbar.Toggle onClick={handleToggle} />
+        <Navbar.Brand>User name</Navbar.Brand>
         <Navbar.Offcanvas
           placement="start"
           show={show}

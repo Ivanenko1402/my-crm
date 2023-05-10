@@ -4,7 +4,7 @@ import { actions } from "../../../store/slices/tripsSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { useState } from "react";
 
-export const EditOrCreateTrip = () => {
+export const TripEntity = () => {
   const { trips } = useSelector((state) => state.trips);
   const { people } = useSelector((state) => state.people);
   const dispatch = useDispatch();

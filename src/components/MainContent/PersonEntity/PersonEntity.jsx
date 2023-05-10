@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link, useParams } from "react-router-dom";
 import { actions } from "../../../store/slices/peopleSlice";
 
-export const EditOrCreatePerson = () => {
+export const PersonEntity = () => {
   const { people } = useSelector((state) => state.people);
   const dispatch = useDispatch();
   const { id } = useParams();

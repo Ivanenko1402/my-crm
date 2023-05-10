@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Table, Alert, Button } from "react-bootstrap";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { PeopleItem } from "../PeopleItem/PeopleItem";
+import { PeopleItem } from "../../PeopleItem/PeopleItem";
 
 export const PeopleCollection = () => {
   const { people } = useSelector(state => state.people);

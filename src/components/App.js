@@ -1,9 +1,8 @@
-import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { Header } from './components/Header';
-import { MainContent } from './components/MainContent';
-import { Footer } from './components/Footer';
-import { MyRoutes } from './MyRoutes';
+import { Header } from './Header';
+import { MainContent } from './MainContent';
+import { Footer } from './Footer';
+import { MyRoutes } from '../MyRoutes';
 
 function App() {
   return (

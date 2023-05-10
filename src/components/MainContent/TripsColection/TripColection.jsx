@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Alert, Button, Table } from "react-bootstrap";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { TripItem } from "../TripItem/TripItem";
+import { TripItem } from "../../TripItem/TripItem";
 
 const tableHeader = ['#', 'Departure ', 'Destination', 'Driver', 'Passengers', 'Info', 'Action']
 
