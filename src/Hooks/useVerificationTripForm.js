@@ -1,133 +1,147 @@
 import { useState } from "react";
-import { useDispatch } from "react-redux";
-import { actions } from "../store/slices/tripsSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { addNewTrip, editTrip } from "../store/slices/tripsSlice";
 
-export const useVerificationTripForm = (trip, people) => {
+export const useVerificationTripForm = (data = {}) => {
+  const { people } = useSelector((state) => state.people);
+
+  const [formField, setFormField] = useState(initFormField);
+  const [errors, setErrors] = useState(initErrors);
   const dispatch = useDispatch();
 
-  const [departure, setDeparture] = useState(!trip ? '' : trip.from);
-  const [isDepartureError, setIsDepartureError] = useState(false);
-  const [destination, setDestination] = useState(!trip ? '' : trip.to);
-  const [isDestinationError, setIsDestinationError] = useState(false);
-  const [cost, setCost] = useState(!trip ? '' : trip.cost);
-  const [isCostError, setIsCostError] = useState(false);
-  const [driver, setDriver] = useState(!trip ? null : trip.driver);
-  const [isDriverError, setIsDriverError] = useState(false);
-  const [passengers, setPassengers] = useState(!trip ? [] : trip.passengers);
-  const [isPassengersError, setIsPassengersError] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
+  function initFormField() {
+    return {
+      tripDeparture: data.from ?? '',
+      tripDestination: data.to ?? '',
+      tripCost: data.cost ?? '',
+      tripPassenger: data.passengers ?? [],
+      tripDriver: data.driver ?? null,
+    };
+  };
+
+  function initErrors() {
+    return {
+      isDepartureError: '',
+      isDestinationError: '',
+      isCostError: '',
+      isDriverError: '',
+      isPassengersError: '',
+    };
+  };
 
   const resetErrors = () => {
-    setIsDepartureError(false);
-    setIsDestinationError(false);
-    setIsCostError(false);
-    setIsDriverError(false);
-    setIsPassengersError(false);
-    setErrorMessage("");
+    setErrors({
+      isDepartureError: '',
+      isDestinationError: '',
+      isCostError: '',
+      isDriverError: '',
+      isPassengersError: '',
+    });
   };
 
   const checkAllFields = () => {
     resetErrors();
+    let formHasErrors = false;
 
-    if (departure.length < 3) {
-      setIsDepartureError(true);
-      setErrorMessage("Departure length must be at least 3");
-      return false;
+    if (formField.tripDeparture.length < 3) {
+      setErrors(prev => ({...prev, isDepartureError: 'Departure length must be at least 3'}))
+      formHasErrors = true;
     }
 
-    if (destination.length < 3) {
-      setIsDestinationError(true);
-      setErrorMessage("Destination length must be at least 3");
-      return false;
+    if (formField.tripDestination.length < 3) {
+      setErrors(prev => ({...prev, isDestinationError: 'Destination length must be at least 3'}))
+      formHasErrors = true;
     }
 
-    if (+cost < 1) {
-      setIsCostError(true);
-      setErrorMessage("Cost cannot be less than 1");
-      return false;
+    if (+formField.tripCost < 1) {
+      setErrors(prev => ({...prev, isCostError: 'Cost cannot be less than 1'}))
+      formHasErrors = true;
     }
 
-    if (!driver) {
-      setIsDriverError(true);
-      setErrorMessage("Select a driver");
-      return false;
+    if (!formField.tripDriver) {
+      setErrors(prev => ({...prev, isDriverError: 'Select a driver'}))
+      formHasErrors = true;
     }
 
-    if (passengers.length < 1) {
-      setIsPassengersError(true);
-      setErrorMessage("passengers length must be at least 1");
-      return false;
+    if (formHasErrors) {
+      return true;
     }
 
-    return true;
+    return false;
   };
 
   const selectDriver = (id) => {
     const person = people.find((person) => person.userId === +id);
-
-    setDriver(person);
+    setFormField(prev => ({...prev, tripDriver: person}));
   };
 
   const selectPassengers = (id) => {
     const person = people.find((person) => person.userId === +id);
-
-    if (passengers.some((p) => p.userId === +id)) {
-      setPassengers((prev) => prev.filter((p) => p.userId !== +id));
+  
+    if (formField.tripPassenger.some(p => p.userId === person.userId)) {
+      setFormField(prev => ({...prev, tripPassenger: prev.tripPassenger.filter(p => p.userId !== person.userId)}));
+      console.log('121')
     } else {
-      setPassengers((prev) => [...prev, person]);
+      setFormField(prev => ({...prev, tripPassenger: [...prev.tripPassenger, person]}));
     }
   };
 
   const submitForm = (e) => {
-    if (!checkAllFields()) {
+    if (checkAllFields()) {
       e.preventDefault();
       return;
     }
 
-    if (!trip) {
-      const newTrip = {
-        id: +(new Date().toLocaleTimeString().split(':').join('')),
-        from: departure,
-        to: destination,
-        driver,
-        passengers,
-        cost,
-      };
-
-      dispatch(actions.addNewTrip(newTrip));
-      return;
+    const newTrip = {
+      id: data.id ? data.id : +(new Date().toLocaleTimeString().split(':').join('')),
+      from: formField.tripDeparture,
+      to: formField.tripDestination,
+      driver: formField.tripDriver,
+      passengers: formField.tripPassenger,
+      cost: +formField.tripCost,
     }
 
-    const newTrip = {
-      id: trip.id,
-      from: departure,
-      to: destination,
-      driver,
-      passengers,
-      cost,
-    };
+    if (data.id) {
+      dispatch(editTrip(newTrip));
+      return;
+    }
+      dispatch(addNewTrip(newTrip));
 
-    dispatch(actions.editTrip(newTrip));
   };
 
+  const onChangeForm = (event) => {
+    const value = event.target.value;
+
+    switch (event.target.name) {
+      case 'tripDeparture':
+        setFormField(prev => ({...prev, tripDeparture: value}));
+        break;
+
+      case 'tripDestination':
+        setFormField(prev => ({...prev, tripDestination: value}));
+        break;
+
+      case 'tripCost':
+        setFormField(prev => ({...prev, tripCost: value}));
+        break;
+
+      case 'tripDriver':
+        selectDriver(value);
+        break;
+
+      case 'tripPassenger':
+        selectPassengers(value);
+        break;
+
+      default:
+        submitForm(event);
+        break;
+    }
+  }
+
   return {
-    departure,
-    setDeparture,
-    isDepartureError,
-    destination,
-    setDestination,
-    isDestinationError,
-    cost,
-    setCost,
-    isCostError,
-    setDriver,
-    isDriverError,
-    passengers,
-    setPassengers,
-    isPassengersError,
-    errorMessage,
-    submitForm,
-    selectDriver,
-    selectPassengers,
+    formField,
+    onChangeForm,
+    errors,
   }
 }

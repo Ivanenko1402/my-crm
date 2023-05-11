@@ -2,17 +2,27 @@ import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { actions } from "../store/slices/peopleSlice";
 
-export const useVerificationPersonForm = (person) => {
-  const [name, setName] = useState(person ? person.displayName : '');
-  const [isNameError, setIsNameError] = useState(false);
-  const [email, setEmail] = useState(person ? person.email : '');
-  const [isEmailError, setIsEmailError] = useState(false);
-  const [phone, setPhone] = useState(person ? person.phoneNumber : '');
-  const [isPhoneError, setIsPhoneError] = useState(false);
-  const [role, setRole] = useState(person ? person.role : 'Driver')
-  const [errorMessage, setErrorMessage] = useState('');
-
+export const useVerificationPersonForm = (data) => {
+  const [formField, setFormField] = useState(initFormField);
+  const [errors, setErrors] = useState(initErrors);
   const dispatch = useDispatch();
+
+  function initFormField() {
+    return {
+      userName: data.displayName ?? '',
+      userEmail: data.email ?? '',
+      userPhoneNumber: data.phoneNumber ?? '',
+      userRole: data.role ?? 'Driver',
+    };
+  };
+
+  function initErrors() {
+    return {
+      isNameError: '',
+      isEmailError: '',
+      isPhoneError: '',
+    };
+  };
 
   const submitForm = (event) => {
     if (checkForm()) {
@@ -20,23 +30,23 @@ export const useVerificationPersonForm = (person) => {
       return;
     }
 
-    if (!person) {
+    if (!data) {
       const newPerson = {
-        userId: new Date(),
-        displayName: name,
-        email,
-        phoneNumber: phone,
-        role,
+        userId: +(new Date().toLocaleTimeString().split(':').join('')),
+        displayName: formField.userName,
+        email: formField.useEmail,
+        phoneNumber: formField.userPhoneNumber,
+        role: formField.userRole,
       };
 
       dispatch(actions.addPerson(newPerson));
     } else {
       const newPerson = {
-        userId: +person.userId,
-        displayName: name,
-        email: email,
-        phoneNumber: phone,
-        role: role,
+        userId: +data.userId,
+        displayName: formField.userName,
+        email: formField.useEmail,
+        phoneNumber: formField.userPhoneNumber,
+        role: formField.userRole,
       };
 
       dispatch(actions.editPerson(newPerson));
@@ -45,22 +55,36 @@ export const useVerificationPersonForm = (person) => {
 
   function checkForm() {
     resetErrors();
+    let formHasErrors = false;
 
-    if (name.length < 3) {
-      setIsNameError(true);
-      setErrorMessage("Name must be at least 3 letters");
-      return true;
+    if (formField.userName.length < 3) {
+      setErrors(prev => ({
+        ...prev,
+        isNameError: 'Name must be at least 3 letters'
+      }));
+
+      formHasErrors = true;
     }
 
-    if (!email) {
-      setIsEmailError(true);
-      setErrorMessage("Email cannot be empty");
-      return true;
+    if (!formField.userEmail) {
+      setErrors(prev => ({
+        ...prev,
+        isEmailError: 'Email cannot be empty'
+      }));
+
+      formHasErrors = true;
     }
 
-    if (phone.length < 8) {
-      setIsPhoneError(true);
-      setErrorMessage("Phone number must be at least 8 digits");
+    if (formField.userPhoneNumber.length < 8) {
+      setErrors(prev => ({
+        ...prev,
+        isPhoneError: 'Phone number must be at least 8 digits'
+      }));
+
+      formHasErrors = true;
+    }
+
+    if (formHasErrors) {
       return true;
     }
 
@@ -68,25 +92,46 @@ export const useVerificationPersonForm = (person) => {
   }
 
   function resetErrors() {
-    setIsEmailError(false);
-    setIsNameError(false);
-    setIsPhoneError(false);
-    setErrorMessage("");
+    setErrors({
+      isNameError: '',
+      isEmailError: '',
+      isPhoneError: '',
+    });
+  }
+
+  function onChangeForm(event) {
+    checkForm();
+    const value = event.target.value;
+
+    switch (event.target.name) {
+      case 'userName':
+        setFormField(prev => ({...prev, userName: value}));
+        break;
+
+      case 'userEmail':
+        setFormField(prev => ({...prev, userEmail: value}));
+        break;
+
+      case 'userPhone':
+        setFormField(prev => ({...prev, userPhone: value}));
+        break;
+
+      case 'userRole':
+        setFormField(prev => ({...prev, userRole: value}));
+        break;
+
+      case '':
+        submitForm(event);
+        break;
+
+      default:
+        break;
+    }
   }
 
   return {
-    name,
-    setName,
-    isNameError,
-    email,
-    setEmail,
-    isEmailError,
-    phone,
-    setPhone,
-    isPhoneError,
-    role,
-    setRole,
-    errorMessage,
-    submitForm,
+    formField,
+    onChangeForm,
+    errors,
   }
 };
