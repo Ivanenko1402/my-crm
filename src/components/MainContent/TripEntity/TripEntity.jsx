@@ -1,12 +1,21 @@
 import { Button, Col, Container, Form, Row } from "react-bootstrap"
 import { Link, useParams } from "react-router-dom"
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { useVerificationTripForm } from "../../../Hooks/useVerificationTripForm";
+import { init as personsInit } from "../../../store/slices/peopleSlice";
+import { useEffect } from "react";
 
 export const TripEntity = () => {
+  const dispatch = useDispatch();
   const { trips } = useSelector((state) => state.trips);
   const { peopleList } = useSelector((state) => state.people);
   const { id } = useParams();
+
+  useEffect(() => {
+    if (!peopleList.length) {
+      dispatch(personsInit());
+    }
+  }, []);
 
   const allDrivers = peopleList.filter((person) => person.role === "Driver");
   const allPassengers = peopleList.filter((person) => person.role === "Passenger");
@@ -64,18 +73,25 @@ export const TripEntity = () => {
             <Form.Label>Driver:</Form.Label>
             <Form.Select
               name='tripDriver'
+              value={formField.tripDriver ? formField.tripDriver.userId : ''}
               onChange={onChangeForm}
+              isInvalid={errors.isDriverError}
+              required
             >
-              <option disabled>select a driver</option>
+              <option value='' disabled selected>select a driver</option>
               {allDrivers.map((driver) => (
                 <option
                   key={driver.userId}
                   value={driver.userId}
-                  required
                 >
                   {driver.displayName}
                 </option>
               ))}
+              {errors.isDriverError && (
+                <Form.Control.Feedback type="invalid">
+                  {errors.isDriverError}
+                </Form.Control.Feedback>
+              )}
             </Form.Select>
           </Form.Group>
         </Col>

@@ -1,13 +1,13 @@
 import { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { addNewTrip, editTrip } from "../store/slices/tripsSlice";
+import { useSelector } from "react-redux";
+import { getDatabase, ref, set } from "firebase/database";
+
 
 export const useVerificationTripForm = (data = {}) => {
+  const db = getDatabase();
   const { peopleList } = useSelector((state) => state.people);
-
   const [formField, setFormField] = useState(initFormField);
   const [errors, setErrors] = useState(initErrors);
-  const dispatch = useDispatch();
 
   function initFormField() {
     return {
@@ -63,15 +63,12 @@ export const useVerificationTripForm = (data = {}) => {
       formHasErrors = true;
     }
 
-    if (formHasErrors) {
-      return true;
-    }
-
-    return false;
+    return formHasErrors
   };
 
   const selectDriver = (id) => {
     const person = peopleList.find((person) => person.userId === id);
+    console.log('driver', person)
     setFormField(prev => ({...prev, tripDriver: person}));
   };
 
@@ -85,14 +82,16 @@ export const useVerificationTripForm = (data = {}) => {
     }
   };
 
-  const submitForm = (e) => {
-    if (checkAllFields()) {
+  const submitForm = async (e) => {
+    const error = checkAllFields();
+
+    if (error) {
       e.preventDefault();
       return;
     }
 
     const newTrip = {
-      id: data.id ? data.id : +(new Date().toLocaleTimeString().split(':').join('')),
+      id: data.id ? data.id : String(new Date().toLocaleTimeString().split(':').join('')),
       from: formField.tripDeparture,
       to: formField.tripDestination,
       driver: formField.tripDriver,
@@ -101,11 +100,11 @@ export const useVerificationTripForm = (data = {}) => {
     }
 
     if (data.id) {
-      dispatch(editTrip(newTrip));
+      await set(ref(db, `trips/${newTrip.id}`), newTrip);
       return;
     }
-      dispatch(addNewTrip(newTrip));
-
+    console.log('added')
+    await set(ref(db, `trips/${newTrip.id}`), newTrip);
   };
 
   const onChangeForm = (event) => {

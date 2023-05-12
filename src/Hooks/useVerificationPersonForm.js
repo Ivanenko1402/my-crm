@@ -1,13 +1,10 @@
 import { useState } from "react";
-import { useDispatch } from "react-redux";
-import { actions, init } from "../store/slices/peopleSlice";
 import { getDatabase, ref, set } from "firebase/database";
 
 export const useVerificationPersonForm = (data) => {
   const [formField, setFormField] = useState(initFormField);
   const [errors, setErrors] = useState(initErrors);
   const db = getDatabase();
-  const dispatch = useDispatch();
 
   function initFormField() {
     return {
@@ -51,7 +48,6 @@ export const useVerificationPersonForm = (data) => {
         phoneNumber: formField.userPhoneNumber,
         role: formField.userRole,
       };
-
       await set(ref(db, `people/${newPerson.userId}`), newPerson);
     }
   };

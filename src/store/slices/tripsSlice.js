@@ -1,57 +1,45 @@
-import { createSlice } from '@reduxjs/toolkit';
-
-const trips = [
-  {
-    id: 1,
-    from: 'Kyiv',
-    to: 'Boryspil',
-    driver: {
-      userId: 4,
-      displayName: 'name4',
-      email: 'test1@test.com',
-      phoneNumber: '01101010101',
-      role: 'Driver',
-    },
-    passengers: [
-      {
-        userId: 6,
-        displayName: 'name6',
-        email: 'test3@test.com',
-        phoneNumber: '01101010101',
-        role: 'Passenger',
-      },
-    ],
-    cost: 100,
-  }
-];
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { getDatabase, onValue, ref } from 'firebase/database';
 
 const initialState = {
-  trips,
+  trips: [],
+  isTripsLoading: false,
+  error: '',
 };
+
+export const init = createAsyncThunk(
+  'trips/fetch',
+  async () => {
+    return new Promise((resolve, reject) => {
+      const db = getDatabase();
+      const starCountRef = ref(db, 'trips/');
+      onValue(starCountRef, (snapshot) => {
+        const data = Object.values(snapshot.val());
+        resolve(data);
+      }, (error) => {
+        reject(error);
+      })
+    })
+  }
+);
 
 const tripsSlice = createSlice({
   name: 'trips',
   initialState,
-  reducers: {
-    addNewTrip: (state, action) => {
-      state.trips = [...state.trips, action.payload];
-    },
-    removeTrip: (state, action) => {
-      state.trips = (state.trips).filter(t => t.id !== action.payload);
-    },
-    editTrip: (state, action) => {
-      state.trips = (state.trips).map(
-        trip => {
-          if (trip.id === action.payload.id) {
-            return action.payload;
-          }
-
-          return trip;
-        }
-      );
-    },
+  reducers: {},
+  extraReducers: (builder) => {
+    builder.addCase(init.pending, (state) => {
+      state.isTripsLoading = true;
+    });
+    builder.addCase(init.fulfilled, (state, action) => {
+      state.isTripsLoading = false;
+      state.trips = action.payload
+    });
+    builder.addCase(init.rejected, (state) => {
+      state.isTripsLoading = false;
+      state.error = 'something went wrong';
+    });
   },
 });
 
-export const { addNewTrip, removeTrip, editTrip } = tripsSlice.actions;
 export default tripsSlice.reducer;
