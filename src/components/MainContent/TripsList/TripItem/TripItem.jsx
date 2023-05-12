@@ -1,15 +1,17 @@
 import { Link } from "react-router-dom";
 import { InformationIcon, DeleteIcon } from "../../../icons";
-import { useDispatch } from "react-redux";
-import { removeTrip } from '../../../../store/slices/tripsSlice';
 import { getDatabase, ref, set } from "firebase/database";
+import { useDispatch } from "react-redux";
+import { init as tripInit } from '../../../../store/slices/tripsSlice';
 
 export const TripItem = ({ trip, index }) => {
   const { id, from, to, driver, passengers } = trip;
   const db = getDatabase();
+  const dispatch = useDispatch();
 
   const deleteTrip = async () => {
     await set(ref(db, `trips/${id}`), null);
+    dispatch(tripInit());
   }
 
   return (

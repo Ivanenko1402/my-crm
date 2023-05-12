@@ -8,7 +8,7 @@ function App() {
   const isLoggedIn = true;
 
   return (
-    <div className='d-flex flex-column vh-100'>
+    <div className='d-flex flex-column vh-100 vw-100'>
       <Header />
 
       <MainContent>

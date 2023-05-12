@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Table, Alert, Button } from "react-bootstrap";
+import { Table, Alert, Button, Spinner } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 
@@ -23,7 +23,9 @@ export const PersonList = () => {
   return (
     <>
       {isLoading && (
-        <div>Loading...</div>
+        <div className='d-flex justify-content-center align-items-center h-100 w-100'>
+          <Spinner animation="border" role="status" />
+        </div>
       )}
       {list.length > 0 && !error && !isLoading && (
         <>

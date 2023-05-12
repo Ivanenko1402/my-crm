@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Alert, Button, Table } from "react-bootstrap";
+import { Alert, Button, Spinner, Table } from "react-bootstrap";
 import { useSelector, useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import { TripItem } from './TripItem';
@@ -23,7 +23,9 @@ export const TripList = () => {
   return (
     <>
       {isTripsLoading && (
-        <div>Loading...</div>
+        <div className='d-flex justify-content-center align-items-center h-100 w-100'>
+          <Spinner animation="border" role="status" />
+        </div>
       )}
       {list.length > 0 && !error && !isTripsLoading && (
         <>
