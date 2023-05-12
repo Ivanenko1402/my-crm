@@ -5,12 +5,12 @@ import { useVerificationTripForm } from "../../../Hooks/useVerificationTripForm"
 
 export const TripEntity = () => {
   const { trips } = useSelector((state) => state.trips);
-  const { people } = useSelector((state) => state.people);
+  const { peopleList } = useSelector((state) => state.people);
   const { id } = useParams();
 
-  const allDrivers = people.filter((person) => person.role === "Driver");
-  const allPassengers = people.filter((person) => person.role === "Passenger");
-  const trip = id === 'new' ? {} : trips.find((t) => t.id === +id);
+  const allDrivers = peopleList.filter((person) => person.role === "Driver");
+  const allPassengers = peopleList.filter((person) => person.role === "Passenger");
+  const trip = id === 'new' ? {} : trips.find((t) => t.id === id);
 
   const {
     formField,
@@ -29,7 +29,7 @@ export const TripEntity = () => {
               name='tripDeparture'
               value={formField.tripDeparture}
               onChange={onChangeForm}
-              isInvalid={!!errors.isDepartureError}
+              isInvalid={errors.isDepartureError}
               required
             />
             {errors.isDepartureError && (
@@ -47,7 +47,7 @@ export const TripEntity = () => {
               name='tripDestination'
               value={formField.tripDestination}
               onChange={onChangeForm}
-              isInvalid={!!errors.isDestinationError}
+              isInvalid={errors.isDestinationError}
               required
             />
             {errors.isDestinationError && (
@@ -71,18 +71,12 @@ export const TripEntity = () => {
                 <option
                   key={driver.userId}
                   value={driver.userId}
-                  isInvalid={!!errors.isDriverError}
                   required
                 >
                   {driver.displayName}
                 </option>
               ))}
             </Form.Select>
-            {errors.isDriverError && (
-              <Form.Control.Feedback type="invalid">
-                {errors.isDriverError}
-              </Form.Control.Feedback>
-            )}
           </Form.Group>
         </Col>
         <Col sm={12} md={4}>
@@ -114,7 +108,6 @@ export const TripEntity = () => {
               onChange={onChangeForm}
               value={formField.tripPassenger.map((p) => p.userId)}
               required
-              isInvalid={!!errors.isPassengerError}
             >
               <option disabled>select a passengers</option>
               {allPassengers.map((passenger) => (
@@ -123,11 +116,6 @@ export const TripEntity = () => {
                 </option>
               ))}
             </Form.Select>
-            {errors.isPassengerError && (
-              <Form.Control.Feedback type="invalid">
-                {errors.isPassengerError}
-              </Form.Control.Feedback>
-            )}
           </Form.Group>
         </Col>
       </Row>

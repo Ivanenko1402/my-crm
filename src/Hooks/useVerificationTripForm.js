@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { addNewTrip, editTrip } from "../store/slices/tripsSlice";
 
 export const useVerificationTripForm = (data = {}) => {
-  const { people } = useSelector((state) => state.people);
+  const { peopleList } = useSelector((state) => state.people);
 
   const [formField, setFormField] = useState(initFormField);
   const [errors, setErrors] = useState(initErrors);
@@ -71,16 +71,15 @@ export const useVerificationTripForm = (data = {}) => {
   };
 
   const selectDriver = (id) => {
-    const person = people.find((person) => person.userId === +id);
+    const person = peopleList.find((person) => person.userId === id);
     setFormField(prev => ({...prev, tripDriver: person}));
   };
 
   const selectPassengers = (id) => {
-    const person = people.find((person) => person.userId === +id);
+    const person = peopleList.find((person) => person.userId === id);
   
     if (formField.tripPassenger.some(p => p.userId === person.userId)) {
       setFormField(prev => ({...prev, tripPassenger: prev.tripPassenger.filter(p => p.userId !== person.userId)}));
-      console.log('121')
     } else {
       setFormField(prev => ({...prev, tripPassenger: [...prev.tripPassenger, person]}));
     }

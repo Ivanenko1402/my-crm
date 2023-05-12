@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
-import { actions } from "../store/slices/peopleSlice";
+import { actions, init } from "../store/slices/peopleSlice";
+import { getDatabase, ref, set } from "firebase/database";
 
 export const useVerificationPersonForm = (data) => {
   const [formField, setFormField] = useState(initFormField);
   const [errors, setErrors] = useState(initErrors);
+  const db = getDatabase();
   const dispatch = useDispatch();
 
   function initFormField() {
@@ -24,32 +26,33 @@ export const useVerificationPersonForm = (data) => {
     };
   };
 
-  const submitForm = (event) => {
+  const submitForm = async (event) => {
     if (checkForm()) {
       event.preventDefault();
       return;
     }
 
-    if (!data) {
+    if (!data.userId) {
       const newPerson = {
-        userId: +(new Date().toLocaleTimeString().split(':').join('')),
+        userId: String(new Date().toLocaleTimeString().split(':').join('')),
         displayName: formField.userName,
-        email: formField.useEmail,
+        email: formField.userEmail,
         phoneNumber: formField.userPhoneNumber,
         role: formField.userRole,
       };
 
-      dispatch(actions.addPerson(newPerson));
+      await set(ref(db, `people/${newPerson.userId}`), newPerson);
+
     } else {
       const newPerson = {
-        userId: +data.userId,
+        userId: data.userId,
         displayName: formField.userName,
-        email: formField.useEmail,
+        email: formField.userEmail,
         phoneNumber: formField.userPhoneNumber,
         role: formField.userRole,
       };
 
-      dispatch(actions.editPerson(newPerson));
+      await set(ref(db, `people/${newPerson.userId}`), newPerson);
     }
   };
 
@@ -100,7 +103,6 @@ export const useVerificationPersonForm = (data) => {
   }
 
   function onChangeForm(event) {
-    checkForm();
     const value = event.target.value;
 
     switch (event.target.name) {
@@ -113,7 +115,7 @@ export const useVerificationPersonForm = (data) => {
         break;
 
       case 'userPhone':
-        setFormField(prev => ({...prev, userPhone: value}));
+        setFormField(prev => ({...prev, userPhoneNumber: value}));
         break;
 
       case 'userRole':

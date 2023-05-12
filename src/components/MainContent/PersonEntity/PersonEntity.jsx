@@ -4,9 +4,16 @@ import { Link, useParams } from "react-router-dom";
 import { useVerificationPersonForm } from "../../../Hooks/useVerificationPersonForm";
 
 export const PersonEntity = () => {
-  const { people } = useSelector((state) => state.people);
+  const { peopleList } = useSelector((state) => state.people);
   const { id } = useParams();
-  const person = people.find((p) => p.userId === +id) || {};
+  const person = getPerson(peopleList);
+
+  function getPerson(list) {
+    if (id === 'new') {
+      return {};
+    }
+    return list.find((p) => p.userId === id)
+  }
 
   const {
     formField,
@@ -62,7 +69,7 @@ export const PersonEntity = () => {
               name='userPhone'
               isInvalid={!!errors.isPhoneError}
               value={formField.userPhoneNumber}
-              onChange={e => onChangeForm(e)}
+              onChange={onChangeForm}
             />
             {errors.isPhoneError && (
               <Form.Control.Feedback type="invalid">
