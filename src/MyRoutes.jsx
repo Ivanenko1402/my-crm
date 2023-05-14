@@ -15,6 +15,7 @@ export function MyRoutes() {
 
       <Route path="/trips" element={<TripList />} />
       <Route path="/trips/:id" element={<TripEntity />} />
+      <Route path="*" element={<PageNotFound />} />
 
       <Route path="/registr" element={<AuthPage />} />
       <Route path="/login" element={<LoginPage />} />

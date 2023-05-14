@@ -1,88 +1,14 @@
 import { Link, useLocation  } from 'react-router-dom';
 import { Modal, Button, Form } from 'react-bootstrap';
-import { useState } from 'react';
+import { useCheckedLoginForm } from '../../Hooks/useCheckedLoginForm';
 
 export const LoginOrRegistrForm = () => {
   const params = useLocation();
   const currentPage = params.pathname === '/login'
+  const [formField, onChangeForm, errors] = useCheckedLoginForm(currentPage);
 
-  const [email, setEmail] = useState('');
-  const [emailError, setEmailError] = useState(false)
-  const [password, setPassword] = useState('');
-  const [passwordError, setPasswordError] = useState(false)
-  const [displayName, setDisplayName] = useState('');
-  const [displayNameError, setDisplayNameError] = useState(false)
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const [phoneNumberError, setPhoneNumberError] = useState(false)
-  const [errorMessage, setErrorMessage] = useState('');
-
-  const resetErrors = () => {
-    setEmailError(false);
-    setPasswordError(false);
-    setDisplayNameError(false);
-    setPhoneNumberError(false);
-    setErrorMessage('');
-  }
-
-  const checkLogin = (arg) => {
-    if (!email) {
-      setEmailError(true);
-      setErrorMessage('Поле є обов\'язковим')
-      return false;
-    }
-
-    if (password.length < 6) {
-      setPasswordError(true);
-      setErrorMessage('Пароль не менше 6 символів')
-      return false;
-    }
-
-    if (arg) {
-      if (!email) {
-        setEmailError(true);
-        setErrorMessage('Поле є обов\'язковим')
-        return false;
-      }
-      
-      if (password.length < 6) {
-        setPasswordError(true);
-        setErrorMessage('Пароль не менше 6 символів')
-        return false;
-      }
-
-      if (displayName.length < 4) {
-        console.log('error')
-        setDisplayNameError(true);
-        setErrorMessage('Ім\'я не менше 4 символів')
-        return false;
-      }
-
-      if (phoneNumber.length < 9) {
-        setPhoneNumberError(true);
-        setErrorMessage('Телефон не менше 9 символів')
-        return false;
-      }
-    }
-
-    return true;
-  }
-
-  const submitForm = () => {
-    resetErrors();
-
-    if (currentPage) {
-      if (!checkLogin(false)) {
-        return;
-      }
-    } else {
-      if (!checkLogin(true)) {
-        return;
-      }
-    }
-  }
-  
   return (
-    <div className="modal position-static d-block">
+    <div className="d-block modal position-static">
       <Modal.Dialog className='window'>
         <Modal.Header>
           <Modal.Title>{
@@ -93,23 +19,20 @@ export const LoginOrRegistrForm = () => {
         </Modal.Header>
 
         <Modal.Body>
-          <Form onSubmit={(event) => {
-            event.preventDefault();
-            submitForm();
-          }}>
+          <Form onSubmit={onChangeForm}>
             <Form.Group className="mb-3" controlId="formBasicEmail">
               <Form.Label>Email address</Form.Label>
               <Form.Control
                 type="email"
                 placeholder="Enter email"
-                required
-                isInvalid={emailError}
-                value={email}
-                onChange={(event) => setEmail(event.target.value.trim())}
+                name="email"
+                isInvalid={errors.email}
+                value={formField.email}
+                onChange={onChangeForm}
               />
-              {emailError && (
+              {errors.email && (
                 <Form.Control.Feedback type="invalid">
-                  {errorMessage}
+                  {errors.email}
                 </Form.Control.Feedback>
               )}
             </Form.Group>
@@ -119,14 +42,14 @@ export const LoginOrRegistrForm = () => {
               <Form.Control
                 type="password"
                 placeholder="Password"
-                required
-                isInvalid={passwordError}
-                value={password}
-                onChange={(event) => setPassword(event.target.value.trim())}
+                name="password"
+                isInvalid={errors.password}
+                value={formField.password}
+                onChange={onChangeForm}
               />
-              {passwordError && (
+              {errors.password && (
               <Form.Control.Feedback type="invalid">
-                {errorMessage}
+                {errors.password}
               </Form.Control.Feedback>)}
             </Form.Group>
 
@@ -137,14 +60,14 @@ export const LoginOrRegistrForm = () => {
                   <Form.Control
                     type="text"
                     placeholder="First name"
-                    required
-                    isInvalid={displayNameError}
-                    value={displayName}
-                    onChange={(event) => setDisplayName(event.target.value.trim())}
+                    name="displayName"
+                    isInvalid={errors.displayName}
+                    value={formField.displayName}
+                    onChange={onChangeForm}
                   />
-                  {displayNameError && (
+                  {errors.displayName && (
                     <Form.Control.Feedback type="invalid">
-                      {errorMessage}
+                      {errors.displayName}
                     </Form.Control.Feedback>
                   )}
                 </Form.Group>
@@ -154,14 +77,14 @@ export const LoginOrRegistrForm = () => {
                   <Form.Control
                     type="phone"
                     placeholder="Phone number"
-                    required
-                    isInvalid={phoneNumberError}
-                    value={phoneNumber}
-                    onChange={(event) => setPhoneNumber(event.target.value.trim())}
+                    name="phoneNumber"
+                    isInvalid={errors.phoneNumber}
+                    value={formField.phoneNumber}
+                    onChange={onChangeForm}
                   />
-                  {phoneNumberError && (
+                  {errors.phoneNumber && (
                     <Form.Control.Feedback type="invalid">
-                      {errorMessage}
+                      {errors.phoneNumber}
                     </Form.Control.Feedback>
                   )}
                 </Form.Group>
@@ -171,7 +94,7 @@ export const LoginOrRegistrForm = () => {
               variant="primary"
               type="submit"
             >
-              Submit
+              {formField.isLoading ? 'Loading...' : 'Submit'}
             </Button>
           </Form>
         </Modal.Body>

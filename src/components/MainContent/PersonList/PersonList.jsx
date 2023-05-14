@@ -12,6 +12,10 @@ export const PersonList = () => {
   const tableHeader = ['#', 'Name', 'Phone', 'Role', 'Edit', 'Delete' ];
   const dispatch = useDispatch();
 
+  const showList = list.length > 0 && !error && !isLoading;
+  const listIsEmpty = !list.length && !error && !isLoading;
+  const errorNotification = error && !isLoading;
+
   useEffect(() => {
     dispatch(init())
   }, [dispatch]);
@@ -27,7 +31,7 @@ export const PersonList = () => {
           <Spinner animation="border" role="status" />
         </div>
       )}
-      {list.length > 0 && !error && !isLoading && (
+      {showList && (
         <>
           <div className="d-flex justify-content-between align-items-center mb-3">
             <h1>People list</h1>
@@ -53,12 +57,12 @@ export const PersonList = () => {
           </Table>
         </>
       )}
-      {!list.length && !error && !isLoading && (
+      {listIsEmpty && (
         <Alert variant='warning'>
           There are no people in the list! Press add new person.
         </Alert>
       )}
-      {(error && !isLoading) && (
+      {errorNotification && (
         <Alert variant='danger'>
           {error}
         </Alert>

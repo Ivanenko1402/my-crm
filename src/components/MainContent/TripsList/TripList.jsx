@@ -12,6 +12,10 @@ export const TripList = () => {
   const { trips, isTripsLoading, error } = useSelector(state => state.trips);
   const [list, setList] = useState(trips);
 
+  const showList = list.length > 0 && !error && !isTripsLoading;
+  const listIsEmpty = !list.length && !error && !isTripsLoading;
+  const errorNotification = error && !isTripsLoading;
+
   useEffect(() => {
     dispatch(tripInit())
   }, [dispatch])
@@ -27,7 +31,7 @@ export const TripList = () => {
           <Spinner animation="border" role="status" />
         </div>
       )}
-      {list.length > 0 && !error && !isTripsLoading && (
+      {showList && (
         <>
           <div className="d-flex justify-content-between align-items-center mb-4">
             <h1>Trips list</h1>
@@ -53,12 +57,12 @@ export const TripList = () => {
           </Table>
         </>
       )}
-      {!list.length && !error && !isTripsLoading && (
+      {listIsEmpty && (
         <Alert variant='warning'>
           There are no people in the list! Press add new person.
         </Alert>
       )}
-      {(error && !isTripsLoading) && (
+      {errorNotification && (
         <Alert variant='danger'>
           {error}
         </Alert>
