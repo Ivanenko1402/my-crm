@@ -1,10 +1,9 @@
 import { useState } from "react";
-import { getDatabase, ref, set } from "firebase/database";
+import { fetchingDataToDB } from "../utils/fetchingDataToDB";
 
 export const useVerificationPersonForm = (data) => {
   const [formField, setFormField] = useState(initFormField);
   const [errors, setErrors] = useState(initErrors);
-  const db = getDatabase();
 
   function initFormField() {
     return {
@@ -38,7 +37,7 @@ export const useVerificationPersonForm = (data) => {
         role: formField.userRole,
       };
 
-      await set(ref(db, `people/${newPerson.userId}`), newPerson);
+      fetchingDataToDB(`people/${newPerson.userId}`, newPerson);
 
     } else {
       const newPerson = {
@@ -48,7 +47,8 @@ export const useVerificationPersonForm = (data) => {
         phoneNumber: formField.userPhoneNumber,
         role: formField.userRole,
       };
-      await set(ref(db, `people/${newPerson.userId}`), newPerson);
+
+      fetchingDataToDB(`people/${newPerson.userId}`, newPerson);
     }
   };
 

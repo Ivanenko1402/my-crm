@@ -1,10 +1,9 @@
 import { useState } from "react";
 import { useSelector } from "react-redux";
-import { getDatabase, ref, set } from "firebase/database";
+import { fetchingDataToDB } from "../utils/fetchingDataToDB";
 
 
 export const useVerificationTripForm = (data = {}) => {
-  const db = getDatabase();
   const { peopleList } = useSelector((state) => state.people);
   const [formField, setFormField] = useState(initFormField);
   const [errors, setErrors] = useState(initErrors);
@@ -100,11 +99,11 @@ export const useVerificationTripForm = (data = {}) => {
     }
 
     if (data.id) {
-      await set(ref(db, `trips/${newTrip.id}`), newTrip);
+      fetchingDataToDB(`trips/${newTrip.id}`, newTrip);
       return;
     }
-    console.log('added')
-    await set(ref(db, `trips/${newTrip.id}`), newTrip);
+
+    fetchingDataToDB(`trips/${newTrip.id}`, newTrip);
   };
 
   const onChangeForm = (event) => {

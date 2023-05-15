@@ -1,12 +1,26 @@
-import { useState } from "react";
+import { getAuth, signOut } from "firebase/auth";
+import { useCallback, useState } from "react";
 import { Button, Container, Nav, Navbar, Offcanvas } from "react-bootstrap";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export function Header() {
   const [show, setShow] = useState(false);
+  const auth = getAuth();
+  const navigate = useNavigate();
 
   const handleClose = () => setShow(false);
   const handleToggle = () => setShow((s) => !s);
+
+  const logOut = useCallback(async () => {
+    await signOut(auth)
+      .then(() => {
+        navigate('/login');
+        handleClose();
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }, [])
 
   return (
     <Navbar
@@ -34,7 +48,15 @@ export function Header() {
                 Trips
               </Nav.Link>
             </Nav>
-            <div className="d-flex flex-column">
+            {auth.currentUser ? (
+              <Button
+                variant="outline-dark"
+                className="mb-4"
+                onClick={logOut}
+              >
+                Log out
+              </Button>
+            ) : (
               <Button
                 as={Link}
                 to="/login"
@@ -44,14 +66,7 @@ export function Header() {
               >
                 Log In
               </Button>
-              <Button
-                variant="outline-dark"
-                className="mb-4"
-                onClick={handleClose}
-              >
-                Log out
-              </Button>
-            </div>
+            )}
           </Offcanvas.Body>
         </Navbar.Offcanvas>
       </Container>

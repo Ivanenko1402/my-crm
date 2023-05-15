@@ -1,9 +1,11 @@
 import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
-export const PageNotFound = () => {
+export const PageNotFound = ({ isLoggedIn }) => {
+  const navigate = useNavigate();
   useEffect (() => {
     setTimeout(() => {
-      window.location.href = '/my-crm';
+      navigate(isLoggedIn ? '/' : '/login');
     }, 1000)
   })
 

@@ -6,7 +6,6 @@ export const useCheckedLoginForm = (isLoginPage) => {
   const auth = getAuth();
   const [formField, setFormField] = useState(initFormField);
   const [errors, setErrors] = useState(initErrors);
-
   const navigate = useNavigate();
 
   function initFormField() {
@@ -72,39 +71,33 @@ export const useCheckedLoginForm = (isLoginPage) => {
     setFormField(prev => ({ ...prev, isLoading: true }));
 
     if (formHasErrors) {
-      console.log('error');
       return;
     }
 
     if (!isLoginPage) {
       await createUserWithEmailAndPassword(auth, formField.email, formField.password)
-        .then((userCredential) => {
-          // const user = userCredential.user;
-          console.log('navigate(/my-crm)');
+        .then(() => {
           navigate('/');
         })
         .catch((error) => {
           const errorCode = error.code;
-          const errorMessage = error.message;
-          alert(errorCode + ': ' + errorMessage);
+          alert(errorCode);
         });
     } else {
       await signInWithEmailAndPassword(auth, formField.email, formField.password)
-      .then((userCredential) => {
-        // const user = userCredential.user;
-        console.log('navigate(/my-crm)');
+      .then(() => {
         navigate('/');
       })
       .catch((error) => {
         const errorCode = error.code;
-        const errorMessage = error.message;
-        alert(errorCode + ': ' + errorMessage);
-        console.log('navigate(/registr)');
-        navigate('/registr');
+        alert('User not found, please register.');
+
+        if (errorCode === 'auth/user-not-found') {
+          navigate('/registr');
+        }
       });
     }
 
-    console.log('submitForm');
     setFormField(prev => ({ ...prev, isLoading: false }));
   }
 

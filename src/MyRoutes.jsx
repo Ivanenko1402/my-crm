@@ -7,19 +7,28 @@ import { LoginPage } from "./components/LoginPage";
 import { AuthPage } from "./components/AuthPage";
 import { PersonList } from "./components/MainContent/PersonList/PersonList";
 
-export function MyRoutes() {
+export function MyRoutes({ isLoggedIn }) {
   return (
-    <Routes>
-      <Route path="/" element={<PersonList />} />
-      <Route path="/people/:id" element={<PersonEntity />} />
+    <>
+      {isLoggedIn ? (
+        <Routes>
+          <Route path="/" element={<PersonList />} />
+          <Route path="/people/:id" element={<PersonEntity />} />
 
-      <Route path="/trips" element={<TripList />} />
-      <Route path="/trips/:id" element={<TripEntity />} />
-      <Route path="*" element={<PageNotFound />} />
+          <Route path="/trips" element={<TripList />} />
+          <Route path="/trips/:id" element={<TripEntity />} />
 
-      <Route path="/registr" element={<AuthPage />} />
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="*" element={<PageNotFound />} />
-    </Routes>
+          <Route path="*" element={<PageNotFound isLoggedIn={isLoggedIn} />} />
+        </Routes>
+      ) : (
+        <Routes>
+          <Route path="*" element={<PageNotFound isLoggedIn={isLoggedIn} />} />
+
+          <Route path="/registr" element={<AuthPage />} />
+          <Route path="/login" element={<LoginPage />} />
+        </Routes>
+      )}
+    </>
+
   );
 }
