@@ -9,7 +9,7 @@ import { getAuth, onAuthStateChanged } from 'firebase/auth';
 
 function App() {
   const auth = getAuth();
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(true);
 
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
@@ -19,7 +19,7 @@ function App() {
         setIsLoggedIn(false);
       }
     });
-  }, [])
+  }, [auth])
 
   return (
     <Router basename='/my-crm'>

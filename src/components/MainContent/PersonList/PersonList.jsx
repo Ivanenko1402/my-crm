@@ -4,11 +4,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 
 import { PersonItem } from './PersonItem';
-import { init } from "../../../store/slices/peopleSlice";
 
 export const PersonList = () => {
-  const { isLoading, peopleList, error } = useSelector(state => state.people);
-  const [list, setList] = useState([]);
+  const { isLoading, people, error } = useSelector(state => state.people);
+  const [list, setList] = useState(people);
   const tableHeader = ['#', 'Name', 'Phone', 'Role', 'Edit', 'Delete' ];
   const dispatch = useDispatch();
 
@@ -17,15 +16,26 @@ export const PersonList = () => {
   const errorNotification = error && !isLoading;
 
   useEffect(() => {
-    dispatch(init())
+    dispatch({
+      type: 'FETCH_PERSONS',
+    });
   }, [dispatch]);
 
   useEffect(() => {
-    setList(peopleList)
-  }, [peopleList]);
+  }, [dispatch]);
+
+  useEffect(() => {
+    setList(people)
+  }, [people]);
 
   return (
     <>
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <h1>People list</h1>
+        <Link to="/people/new">
+          <Button variant="success">Add new person</Button>
+        </Link>
+      </div>
       {isLoading && (
         <div className='d-flex justify-content-center align-items-center h-100 w-100'>
           <Spinner animation="border" role="status" />
@@ -33,12 +43,6 @@ export const PersonList = () => {
       )}
       {showList && (
         <>
-          <div className="d-flex justify-content-between align-items-center mb-3">
-            <h1>People list</h1>
-            <Link to="/people/new">
-              <Button variant="success">Add new person</Button>
-            </Link>
-          </div>
           <Table striped bordered hover size="sm" responsive>
             <thead>
               <tr>

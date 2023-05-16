@@ -1,31 +1,42 @@
 import { Button, Col, Container, Form, Row } from "react-bootstrap"
 import { Link, useParams } from "react-router-dom"
-import { useSelector, useDispatch } from "react-redux";
-import { useVerificationTripForm } from "../../../Hooks/useVerificationTripForm";
-import { init as personsInit } from "../../../store/slices/peopleSlice";
-import { useEffect } from "react";
+import { useSelector } from "react-redux";
+import { useCallback } from "react";
+import { useVerificationForm } from "../../../Hooks/useVerificationForm";
 
 export const TripEntity = () => {
-  const dispatch = useDispatch();
-  const { trips } = useSelector((state) => state.trips);
-  const { peopleList } = useSelector((state) => state.people);
-  const { id } = useParams();
-
-  useEffect(() => {
-    if (!peopleList.length) {
-      dispatch(personsInit());
+  const getData = useCallback((list, id) => {
+    if (id === 'new') {
+      return {};
     }
+  
+    return list.find((p) => p.id === id)
   }, []);
 
-  const allDrivers = peopleList.filter((person) => person.role === "Driver");
-  const allPassengers = peopleList.filter((person) => person.role === "Passenger");
-  const trip = id === 'new' ? {} : trips.find((t) => t.id === id);
+  const initFormField = useCallback((data) => {
+    return {
+      tripDeparture: data.from || '',
+      tripDestination: data.to || '',
+      tripDriver: data.driver?.userId || '',
+      tripCost: data.cost || 0,
+      tripPassengers: data.passengers || [],
+      userId: data.userId || Number(new Date().toLocaleTimeString().split(':').join('')),
+    };
+  }, []);
 
-  const {
-    formField,
+  const { people } = useSelector((state) => state.people);
+  const { trips } = useSelector((state) => state.trips);
+  const { id } = useParams();
+  const allDrivers = people.filter((person) => person.role === "Driver");
+  const allPassengers = people.filter((person) => person.role === "Passenger");
+  const trip = getData(trips, id);
+  const initValues = initFormField(trip);
+
+  const [
+    formValues,
     onChangeForm,
     errors,
-  } = useVerificationTripForm(trip);
+  ] = useVerificationForm(initValues);
 
   return (
     <Container>
@@ -35,15 +46,17 @@ export const TripEntity = () => {
             <Form.Label>Point of departure:</Form.Label>
             <Form.Control
               placeholder="Departure"
+              type="text"
               name='tripDeparture'
-              value={formField.tripDeparture}
-              onChange={onChangeForm}
-              isInvalid={errors.isDepartureError}
+              value={formValues.tripDeparture}
+              isInvalid={errors.tripDeparture}
               required
+              onChange={onChangeForm}
+              onBlur={onChangeForm}
             />
-            {errors.isDepartureError && (
+            {errors.tripDeparture && (
               <Form.Control.Feedback type="invalid">
-                {errors.isDepartureError}
+                {errors.tripDeparture}
               </Form.Control.Feedback>
             )}
           </Form.Group>
@@ -54,14 +67,16 @@ export const TripEntity = () => {
             <Form.Control
               placeholder="Destination"
               name='tripDestination'
-              value={formField.tripDestination}
-              onChange={onChangeForm}
-              isInvalid={errors.isDestinationError}
+              type="text"
+              isInvalid={errors.tripDestination}
               required
+              value={formValues.tripDestination}
+              onChange={onChangeForm}
+              onBlur={onChangeForm}
             />
-            {errors.isDestinationError && (
+            {errors.tripDestination && (
               <Form.Control.Feedback type="invalid">
-                {errors.isDestinationError}
+                {errors.tripDestination}
               </Form.Control.Feedback>
             )}
           </Form.Group>
@@ -73,12 +88,13 @@ export const TripEntity = () => {
             <Form.Label>Driver:</Form.Label>
             <Form.Select
               name='tripDriver'
-              value={formField.tripDriver ? formField.tripDriver.userId : ''}
+              isInvalid={errors.tripDriver}
+              data-type="tripDriver"
+              value={formValues.tripDriver?.userId || 0}
               onChange={onChangeForm}
-              isInvalid={errors.isDriverError}
-              required
+              onBlur={onChangeForm}
             >
-              <option value='' disabled selected>select a driver</option>
+              <option value="0" disabled>select a driver</option>
               {allDrivers.map((driver) => (
                 <option
                   key={driver.userId}
@@ -87,12 +103,12 @@ export const TripEntity = () => {
                   {driver.displayName}
                 </option>
               ))}
-              {errors.isDriverError && (
-                <Form.Control.Feedback type="invalid">
-                  {errors.isDriverError}
-                </Form.Control.Feedback>
-              )}
             </Form.Select>
+            {errors.tripDriver && (
+              <Form.Control.Feedback type="invalid">
+                {errors.tripDriver}
+              </Form.Control.Feedback>
+            )}
           </Form.Group>
         </Col>
         <Col sm={12} md={4}>
@@ -101,14 +117,15 @@ export const TripEntity = () => {
             <Form.Control
               placeholder="100"
               name="tripCost"
-              value={formField.tripCost}
-              onChange={onChangeForm}
-              isInvalid={!!errors.isCostError}
+              isInvalid={errors.tripCost}
               required
+              value={formValues.tripCost}
+              onChange={onChangeForm}
+              onBlur={onChangeForm}
             />
-            {errors.isCostError && (
+            {errors.tripCost && (
               <Form.Control.Feedback type="invalid">
-                {errors.isCostError}
+                {errors.tripCost}
               </Form.Control.Feedback>
             )}
           </Form.Group>
@@ -121,23 +138,36 @@ export const TripEntity = () => {
             <Form.Select
               multiple
               name="tripPassenger"
+              value={formValues.tripPassenger?.map(p => p.userId) || []}
               onChange={onChangeForm}
-              value={formField.tripPassenger.map((p) => p.userId)}
+              onBlur={onChangeForm}
               required
             >
-              <option disabled>select a passengers</option>
+              <option disabled>select a passenger</option>
               {allPassengers.map((passenger) => (
                 <option key={passenger.userId} value={passenger.userId}>
                   {passenger.displayName}
                 </option>
               ))}
             </Form.Select>
+            {errors.tripPassengers && (
+              <Form.Control.Feedback type="invalid">
+                {errors.tripPassengers}
+              </Form.Control.Feedback>
+            )}
           </Form.Group>
         </Col>
       </Row>
       <Row className="justify-content-md-center">
         <Col md={1}>
-          <Link to='/trips' onClick={onChangeForm}>
+          <Link to='/trips'
+            onClick={e => {
+              console.log()
+              if (Object.values(errors).every(e => false)) {
+                e.preventDefault();
+                return;
+              }
+            }}>
             <Button variant="success">
               Save
             </Button>

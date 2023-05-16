@@ -1,18 +1,15 @@
-import { useDispatch } from "react-redux";
-import { actions, init } from '../../../../store/slices/peopleSlice';
 import { Link } from "react-router-dom";
 import { InformationIcon } from '../../../icons/InformationIcon';
 import { DeleteIcon } from '../../../icons/DeleteIcon';
-import { getDatabase, ref, set } from "firebase/database";
+import { useDispatch } from "react-redux";
+import { deletePerson } from '../../../../store/slices/peopleSlice';
 
 export const PersonItem = ({ person, index }) => {
-  const dispatch = useDispatch();
-  const db = getDatabase();
   const { userId, displayName, phoneNumber, role } = person;
+  const dispatch = useDispatch();
 
-  const deletePerson = async () => {
-    await set(ref(db, `people/${userId}`), null);
-    dispatch(init());
+  const removePerson = () => {
+    dispatch(deletePerson(userId));
   }
 
   return (
@@ -27,7 +24,7 @@ export const PersonItem = ({ person, index }) => {
         </Link>
       </td>
       <td className="text-center">
-        <Link onClick={deletePerson}>
+        <Link onClick={removePerson}>
           <DeleteIcon />
         </Link>
       </td>

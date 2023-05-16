@@ -1,25 +1,40 @@
 import { Col, Container, Form, Row, Button } from "react-bootstrap";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Link, useParams } from "react-router-dom";
-import { useVerificationPersonForm } from "../../../Hooks/useVerificationPersonForm";
+import { useVerificationForm } from "../../../Hooks/useVerificationForm";
+import { useCallback } from "react";
 
 export const PersonEntity = () => {
-  const { peopleList } = useSelector((state) => state.people);
-  const { id } = useParams();
-  const person = getPerson(peopleList);
-
-  function getPerson(list) {
+  const getPerson = useCallback((list, id) => {
     if (id === 'new') {
       return {};
     }
+  
     return list.find((p) => p.userId === id)
-  }
+  }, []);
 
-  const {
-    formField,
+  const initFormField = useCallback((data) => {
+    return {
+      userName: data.displayName ?? '',
+      userEmail: data.email ?? '',
+      userPhone: data.phoneNumber || '',
+      userRole: data.role || '',
+      userId: data.userId || Number(new Date().toLocaleTimeString().split(':').join('')),
+    };
+  }, []);
+
+  const { peopleList } = useSelector((state) => state.people);
+  const { id } = useParams();
+  const person = getPerson(peopleList, id);
+
+  const initValues = initFormField(person);
+
+  const [
+    formValues,
     onChangeForm,
     errors,
-  } = useVerificationPersonForm(person);
+    submitForm,
+  ] = useVerificationForm(initValues);
 
   return (
     <Container>
@@ -30,13 +45,15 @@ export const PersonEntity = () => {
             <Form.Control
               placeholder="Name"
               name='userName'
-              isInvalid={!!errors.isNameError}
-              value={formField.userName}
+              type="text"
+              isInvalid={errors?.userName}
+              value={formValues.userName}
               onChange={onChangeForm}
+              onBlur={onChangeForm}
             />
-            {errors.isNameError && (
+            {errors?.userName && (
               <Form.Control.Feedback type="invalid">
-                {errors.isNameError}
+                {errors.userName}
               </Form.Control.Feedback>
             )}
           </Form.Group>
@@ -48,13 +65,14 @@ export const PersonEntity = () => {
               placeholder="example@example.com"
               type="email"
               name="userEmail"
-              isInvalid={!!errors.isEmailError}
-              value={formField.userEmail}
+              isInvalid={errors?.userEmail}
+              value={formValues.userEmail}
               onChange={onChangeForm}
+              onBlur={onChangeForm}
             />
-            {errors.isEmailError && (
+            {errors?.userEmail && (
               <Form.Control.Feedback type="invalid">
-                {errors.isEmailError}
+                {errors.userEmail}
               </Form.Control.Feedback>
             )}
           </Form.Group>
@@ -65,15 +83,17 @@ export const PersonEntity = () => {
           <Form.Group className="mb-3">
             <Form.Label>Phone</Form.Label>
             <Form.Control
-              placeholder="0631533344"
+              placeholder="123456789"
               name='userPhone'
-              isInvalid={!!errors.isPhoneError}
-              value={formField.userPhoneNumber}
+              type='tel'
+              isInvalid={errors.userPhone}
+              value={formValues.userPhone}
               onChange={onChangeForm}
+              onBlur={onChangeForm}
             />
-            {errors.isPhoneError && (
+            {errors?.userPhone && (
               <Form.Control.Feedback type="invalid">
-                {errors.isPhoneError}
+                {errors.userPhone}
               </Form.Control.Feedback>
             )}
           </Form.Group>
@@ -83,18 +103,27 @@ export const PersonEntity = () => {
             <Form.Label>Role</Form.Label>
               <Form.Select
                 name='userRole'
+                value={formValues.userRole}
+                isInvalid={errors.userRole}
                 onChange={onChangeForm}
+                onBlur={onChangeForm}
               >
-                <option value={"Driver"}>Driver</option>
-                <option value={"Passenger"}>Passenger</option>
-                <option value={"Admin"}>Admin</option>
+                <option value="" disabled>Select a value</option>
+                <option value="Driver">Driver</option>
+                <option value="Passenger">Passenger</option>
+                <option value="Admin">Admin</option>
             </Form.Select>
+            {errors.userRole && (
+              <Form.Control.Feedback type="invalid">
+                {errors.userRole}
+              </Form.Control.Feedback>
+            )}
           </Form.Group>
         </Col>
       </Row>
       <Row className="justify-content-md-center">
         <Col md={1}>
-          <Link to='/' onClick={onChangeForm}>
+          <Link to='/' onClick={e => submitForm(e)}>
             <Button variant="success">
               Save
             </Button>
