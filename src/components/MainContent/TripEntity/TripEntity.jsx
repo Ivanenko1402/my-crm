@@ -18,7 +18,7 @@ export const TripEntity = () => {
       tripDeparture: data.from || '',
       tripDestination: data.to || '',
       tripDriver: data.driver?.userId || '',
-      tripCost: data.cost || 0,
+      tripCost: data.cost || '',
       tripPassengers: data.passengers || [],
       userId: data.userId || Number(new Date().toLocaleTimeString().split(':').join('')),
     };
@@ -36,6 +36,7 @@ export const TripEntity = () => {
     formValues,
     onChangeForm,
     errors,
+    submitForm,
   ] = useVerificationForm(initValues);
 
   return (
@@ -90,11 +91,11 @@ export const TripEntity = () => {
               name='tripDriver'
               isInvalid={errors.tripDriver}
               data-type="tripDriver"
-              value={formValues.tripDriver?.userId || 0}
+              value={formValues.tripDriver?.userId || ''}
               onChange={onChangeForm}
               onBlur={onChangeForm}
             >
-              <option value="0" disabled>select a driver</option>
+              <option value="" disabled>select a driver</option>
               {allDrivers.map((driver) => (
                 <option
                   key={driver.userId}
@@ -137,8 +138,9 @@ export const TripEntity = () => {
             <Form.Label>Passengers:</Form.Label>
             <Form.Select
               multiple
-              name="tripPassenger"
-              value={formValues.tripPassenger?.map(p => p.userId) || []}
+              name="tripPassengers"
+              isInvalid={errors.tripPassengers}
+              value={formValues.tripPassengers?.map(p => p.userId) || []}
               onChange={onChangeForm}
               onBlur={onChangeForm}
               required
@@ -150,7 +152,7 @@ export const TripEntity = () => {
                 </option>
               ))}
             </Form.Select>
-            {errors.tripPassengers && (
+            {true && (
               <Form.Control.Feedback type="invalid">
                 {errors.tripPassengers}
               </Form.Control.Feedback>
@@ -160,14 +162,7 @@ export const TripEntity = () => {
       </Row>
       <Row className="justify-content-md-center">
         <Col md={1}>
-          <Link to='/trips'
-            onClick={e => {
-              console.log()
-              if (Object.values(errors).every(e => false)) {
-                e.preventDefault();
-                return;
-              }
-            }}>
+          <Link to='/trips' onClick={e => submitForm(e)}>
             <Button variant="success">
               Save
             </Button>

@@ -9,7 +9,7 @@ const selectPerson = (list, passengersList, id, name) => {
     return person;
   }
 
-  if (name === 'tripPassenger') {
+  if (name === 'tripPassengers') {
     const existingIndex = passengersList.findIndex((p) => p.userId === +id);
 
     if (existingIndex !== -1) {
@@ -50,15 +50,16 @@ const errorStrategies = {
   },
 
   tripDriver(value) {
-    return value === "0" && "Select a driver";
+    return value === "" && "Select a driver";
   },
 
   tripCost(value) {
     return value.length < 1 && 'Cost cannot be less than 1';
   },
 
-  tripPassenger(value) {
-    return value.length < 1 && 'Select a passenger';
+  tripPassengers(value) {
+    console.log(value)
+    return !value.length && 'Select a passenger';
   },
 };
 
@@ -104,7 +105,7 @@ function inputProcessor(event, list, passengersList) {
     return [fieldName, fieldValue];
   }
 
-  if (fieldName === 'tripPassenger') {
+  if (fieldName === 'tripPassengers') {
     const fieldValue = passengersList
       ? selectPerson(list, passengersList, event.target.value, fieldName)
       : selectPerson(list, [], event.target.value, fieldName);
@@ -123,7 +124,7 @@ export const useVerificationForm = (data) => {
 
   const [formValues, setFormValues] = useState(data);
   const [errors, setErrors] = useState({});
-  const passengersList = formValues.tripPassenger;
+  const passengersList = formValues.tripPassengers;
 
   function onChangeForm(event) {
     const [fieldName, fieldValue] = inputProcessor(event, people, passengersList);
@@ -139,11 +140,16 @@ export const useVerificationForm = (data) => {
 
     if (formHasError || !formFilled) {
       event.preventDefault();
-    
+
+      console.log(Object.entries(formValues))
+
       Object.entries(formValues).forEach(([fieldName, fieldValue]) => {
-        if (!fieldValue || fieldValue === '') {
-          const errorValue = errorStrategies[fieldName](fieldValue);
-          setErrors(prev => ({ ...prev, [fieldName]: errorValue }));
+        if (!fieldValue) {
+          setErrors(prev => ({ ...prev, [fieldName]: errorStrategies[fieldName](fieldValue) }));
+        }
+
+        if (!fieldValue.length) {
+          setErrors(prev => ({ ...prev, tripPassengers: 'Select a passenger' })); 
         }
       });
     
