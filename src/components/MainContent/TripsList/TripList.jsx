@@ -1,18 +1,23 @@
 import { useEffect, useState } from "react";
 import { Alert, Button, Spinner, Table } from "react-bootstrap";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { TripItem } from './TripItem';
+import { getTrips } from "../../../store/slices/tripsSlice";
 
 const tableHeader = ['#', 'Departure ', 'Destination', 'Driver', 'Passengers', 'Info', 'Action']
 
 export const TripList = () => {
-  const { trips, isTripsLoading, error } = useSelector(state => state.trips);
+  const { trips, isLoading, error } = useSelector(state => state.trips);
   const [list, setList] = useState(trips);
+  const dispatch = useDispatch();
+  const showList = list.length > 0 && !error && !isLoading;
+  const listIsEmpty = !list.length && !error && !isLoading;
+  const errorNotification = error && !isLoading;
 
-  const showList = list.length > 0 && !error && !isTripsLoading;
-  const listIsEmpty = !list.length && !error && !isTripsLoading;
-  const errorNotification = error && !isTripsLoading;
+  useEffect(() => {
+    dispatch(getTrips());
+  }, [dispatch])
 
   useEffect(() => {
     setList(trips)
@@ -26,7 +31,7 @@ export const TripList = () => {
           <Button variant="success">Add new trip</Button>
         </Link>
       </div>
-      {isTripsLoading && (
+      {isLoading && (
         <div className='d-flex justify-content-center align-items-center h-100 w-100'>
           <Spinner animation="border" role="status" />
         </div>

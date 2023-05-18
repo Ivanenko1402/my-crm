@@ -1,94 +1,36 @@
-import { createSlice } from '@reduxjs/toolkit';
-const people = [
-  {
-    userId: 1,
-    displayName: 'name1',
-    email: 'test1@test.com',
-    phoneNumber: '01101010101',
-    role: 'Admin',
-  },
-  {
-    userId: 2,
-    displayName: 'name2',
-    email: 'test2@test.com',
-    phoneNumber: '01101010101',
-    role: 'Driver',
-  },
-  {
-    userId: 3,
-    displayName: 'name3',
-    email: 'test3@test.com',
-    phoneNumber: '01101010101',
-    role: 'Passenger',
-  },
-  {
-    userId: 4,
-    displayName: 'name4',
-    email: 'test1@test.com',
-    phoneNumber: '01101010101',
-    role: 'Driver',
-  },
-  {
-    userId: 5,
-    displayName: 'name5',
-    email: 'test2@test.com',
-    phoneNumber: '01101010101',
-    role: 'Passenger',
-  },
-  {
-    userId: 6,
-    displayName: 'name6',
-    email: 'test3@test.com',
-    phoneNumber: '01101010101',
-    role: 'Passenger',
-  },
-  {
-    userId: 7,
-    displayName: 'name7',
-    email: 'test1@test.com',
-    phoneNumber: '01101010101',
-    role: 'Passenger',
-  },
-  {
-    userId: 8,
-    displayName: 'name8',
-    email: 'test2@test.com',
-    phoneNumber: '01101010101',
-    role: 'Driver',
-  },
-  {
-    userId: 9,
-    displayName: 'name9',
-    email: 'test3@test.com',
-    phoneNumber: '01101010101',
-    role: 'Passenger',
-  },
-]
+import { createAction, createSlice } from '@reduxjs/toolkit';
+
 const initialState = {
-  people,
+  people: [],
+  isLoading: true,
+  error: '',
 };
+
 const peopleSlice = createSlice({
   name: 'people',
   initialState,
   reducers: {
-    addPerson: (state, action) => {
-      state.people = [...state.people, action.payload];
+    setPeople: (state, action) => {
+      state.people = action.payload;
     },
-    editPerson: (state, action) => {
-      const editPerson = action.payload;
-      state.people = state.people.map(person => {
-        if (person.userId === editPerson.userId) {
-          return editPerson;
-        }
-        return person;
-      });
+
+    setError: (state, action) => {
+      state.error = action.payload;
     },
-    deletePerson: (state, action) => {
-      state.people = state.people.filter(
-        person => person.userId !== action.payload,
-      );
+
+    setIsLoading: (state, action) => {
+      state.isLoading = action.payload;
     },
   },
 });
-export const { addPerson, editPerson, deletePerson } = peopleSlice.actions;
+
+export const GET_PERSONS = 'people/getPersons';
+export const DELETE_PESON = 'people/deletePerson';
+export const CREATE_OR_EDIT_PESON = 'people/createOrEditPerson';
+
+export const getPersons = createAction(GET_PERSONS);
+export const deletePerson = createAction(DELETE_PESON);
+export const createOrEditPerson = createAction(CREATE_OR_EDIT_PESON);
+
+export const { setPeople, setError, setIsLoading } = peopleSlice.actions;
 export default peopleSlice.reducer;

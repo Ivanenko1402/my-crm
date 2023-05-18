@@ -1,15 +1,16 @@
 import { Link } from "react-router-dom";
 import { InformationIcon } from '../../../icons/InformationIcon';
 import { DeleteIcon } from '../../../icons/DeleteIcon';
+import { deletePerson, getPersons } from "../../../../store/slices/peopleSlice";
 import { useDispatch } from "react-redux";
-import { deletePerson } from '../../../../store/slices/peopleSlice';
 
 export const PersonItem = ({ person, index }) => {
-  const { userId, displayName, phoneNumber, role } = person;
   const dispatch = useDispatch();
+  const { userId, displayName, phoneNumber, role } = person;
 
-  const removePerson = () => {
-    dispatch(deletePerson(userId));
+  const removePerson = (data) => {
+    dispatch(deletePerson(data))
+    dispatch(getPersons());
   }
 
   return (
@@ -24,7 +25,7 @@ export const PersonItem = ({ person, index }) => {
         </Link>
       </td>
       <td className="text-center">
-        <Link onClick={removePerson}>
+        <Link onClick={() => removePerson(person)}>
           <DeleteIcon />
         </Link>
       </td>

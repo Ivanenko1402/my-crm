@@ -1,53 +1,36 @@
-import { createSlice } from '@reduxjs/toolkit';
-const trips = [
-  {
-    id: 1,
-    from: 'Kyiv',
-    to: 'Boryspil',
-    driver: {
-      userId: 4,
-      displayName: 'name4',
-      email: 'test1@test.com',
-      phoneNumber: '01101010101',
-      role: 'Driver',
-    },
-    passengers: [
-      {
-        userId: 6,
-        displayName: 'name6',
-        email: 'test3@test.com',
-        phoneNumber: '01101010101',
-        role: 'Passenger',
-      },
-    ],
-    cost: 100,
-  }
-];
+import { createAction, createSlice } from '@reduxjs/toolkit';
+
 const initialState = {
-  trips,
+  trips: [],
+  isLoading: true,
+  error: '',
 };
+
 const tripsSlice = createSlice({
   name: 'trips',
   initialState,
   reducers: {
-    addNewTrip: (state, action) => {
-      state.trips = [...state.trips, action.payload];
+    setTrips: (state, action) => {
+      state.trips = action.payload;
     },
-    removeTrip: (state, action) => {
-      state.trips = (state.trips).filter(t => t.id !== action.payload);
+
+    setError: (state, action) => {
+      state.error = action.payload;
     },
-    editTrip: (state, action) => {
-      state.trips = (state.trips).map(
-        trip => {
-          if (trip.id === action.payload.id) {
-            return action.payload;
-          }
-          return trip;
-        }
-      );
+
+    setIsLoading: (state, action) => {
+      state.isLoading = action.payload;
     },
   },
 });
 
-export const { addNewTrip, removeTrip, editTrip } = tripsSlice.actions;
+export const GET_TRIPS = 'people/getTrips';
+export const DELETE_TRIP = 'people/deleteTrip';
+export const CREATE_OR_EDIT_TRIP = 'people/createOrEditTrip';
+
+export const getTrips = createAction(GET_TRIPS);
+export const deleteTrip = createAction(DELETE_TRIP);
+export const createOrEditTrip = createAction(CREATE_OR_EDIT_TRIP);
+
+export const { setTrips, setError, setIsLoading } = tripsSlice.actions;
 export default tripsSlice.reducer;

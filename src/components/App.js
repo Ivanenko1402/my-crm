@@ -8,18 +8,7 @@ import { useEffect, useState } from 'react';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 
 function App() {
-  const auth = getAuth();
   const [isLoggedIn, setIsLoggedIn] = useState(true);
-
-  useEffect(() => {
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setIsLoggedIn(true);
-      } else {
-        setIsLoggedIn(false);
-      }
-    });
-  }, [auth])
 
   return (
     <Router basename='/my-crm'>

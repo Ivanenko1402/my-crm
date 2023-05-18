@@ -1,28 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { addPerson } from "../store/slices/peopleSlice";
-
-const selectPerson = (list, passengersList, id, name) => {
-  const person = list.find((person) => person.userId === +id) || null;
-
-  if (name === 'tripDriver') {
-    return person;
-  }
-
-  if (name === 'tripPassengers') {
-    const existingIndex = passengersList.findIndex((p) => p.userId === +id);
-
-    if (existingIndex !== -1) {
-      const updatedPassengers = [...passengersList];
-      updatedPassengers.splice(existingIndex, 1);
-      return updatedPassengers;
-    }
-
-    return [...passengersList, person];
-  }
-
-  return null;
-};
+import { createOrEditPerson } from "../store/slices/peopleSlice";
+import { createOrEditTrip } from "../store/slices/tripsSlice";
 
 const errorStrategies = {
   userName(value) {
@@ -58,7 +37,6 @@ const errorStrategies = {
   },
 
   tripPassengers(value) {
-    console.log(value)
     return !value.length && 'Select a passenger';
   },
 };
@@ -94,40 +72,42 @@ const inputStrategies = {
   'select-one'(e) {
     return e.target.value;
   },
+
+  arrayMultiSelect: [],
+
+  'select-multiple'(e) {
+    if (this.arrayMultiSelect.includes(+e.target.value)) {
+      this.arrayMultiSelect = this.arrayMultiSelect.filter(v => v !== +e.target.value)
+    } else {
+      this.arrayMultiSelect.push(+e.target.value);
+    }
+
+    return this.arrayMultiSelect;
+  }
 };
 
-function inputProcessor(event, list, passengersList) {
+function inputProcessor(event) {
   const fieldName = event.target.name;
-
-  if (fieldName === 'tripDriver') {
-    const fieldValue = selectPerson(list, passengersList, event.target.value, fieldName);
-
-    return [fieldName, fieldValue];
-  }
-
-  if (fieldName === 'tripPassengers') {
-    const fieldValue = passengersList
-      ? selectPerson(list, passengersList, event.target.value, fieldName)
-      : selectPerson(list, [], event.target.value, fieldName);
-
-    return [fieldName, fieldValue];
-  }
-
   const fieldValue = inputStrategies[event.target.type](event);
 
   return [fieldName, fieldValue];
 }
 
-export const useVerificationForm = (data) => {
+export const useVerificationForm = (data, type) => {
   const { people } = useSelector(state => state.people);
   const dispatch = useDispatch();
 
   const [formValues, setFormValues] = useState(data);
   const [errors, setErrors] = useState({});
-  const passengersList = formValues.tripPassengers;
+
+  useEffect(() => {
+    console.log(formValues.tripPassengers)
+    inputStrategies.arrayMultiSelect = formValues.tripPassengers ?? [];
+  }, [formValues.tripPassengers, people]);
+
 
   function onChangeForm(event) {
-    const [fieldName, fieldValue] = inputProcessor(event, people, passengersList);
+    const [fieldName, fieldValue] = inputProcessor(event);
     const [errorName, errorValue] = errorProcesser(event);
 
     setFormValues(prev => ({ ...prev, [fieldName]: fieldValue }));
@@ -141,30 +121,46 @@ export const useVerificationForm = (data) => {
     if (formHasError || !formFilled) {
       event.preventDefault();
 
-      console.log(Object.entries(formValues))
-
       Object.entries(formValues).forEach(([fieldName, fieldValue]) => {
         if (!fieldValue) {
           setErrors(prev => ({ ...prev, [fieldName]: errorStrategies[fieldName](fieldValue) }));
         }
 
-        if (!fieldValue.length) {
+        if (type === 'trips' && !fieldValue.passengersList?.length) {
           setErrors(prev => ({ ...prev, tripPassengers: 'Select a passenger' })); 
         }
       });
-    
+
       return;
     }
 
-    const data = {
-      displayName: formValues.userName,
-      email: formValues.userEmail,
-      phoneNumber: formValues.userPhone,
-      role: formValues.userRole,
-      userId: formValues.userId,
-    };
-  
-    dispatch(addPerson(data));
+    switch (type) {
+      case 'person':
+        dispatch(createOrEditPerson({
+          displayName: formValues.userName,
+          email: formValues.userEmail,
+          phoneNumber: formValues.userPhone,
+          role: formValues.userRole,
+          userId: formValues.userId,
+        }));
+        break;
+
+      case 'trips':
+        dispatch(createOrEditTrip({
+          from: formValues.tripDeparture,
+          to: formValues.tripDestination,
+          driver: people.find(p => p.userId === +formValues.tripDriver),
+          cost: formValues.tripCost,
+          passengers: formValues.tripPassengers.map(id => {
+            return people.find(p => p.userId === id);
+          }),
+          id: formValues.tripId,
+        }))
+        break;
+    
+      default:
+        break;
+    }
   };
 
   return [

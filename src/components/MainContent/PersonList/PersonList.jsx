@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 
 import { PersonItem } from './PersonItem';
+import { getPersons } from "../../../store/slices/peopleSlice";
 
 export const PersonList = () => {
   const { isLoading, people, error } = useSelector(state => state.people);
@@ -16,17 +17,12 @@ export const PersonList = () => {
   const errorNotification = error && !isLoading;
 
   useEffect(() => {
-    dispatch({
-      type: 'FETCH_PERSONS',
-    });
-  }, [dispatch]);
-
-  useEffect(() => {
+    dispatch(getPersons());
   }, [dispatch]);
 
   useEffect(() => {
     setList(people)
-  }, [people]);
+  }, [people])
 
   return (
     <>
@@ -54,7 +50,7 @@ export const PersonList = () => {
               </tr>
             </thead>
             <tbody>
-              {list.map((person, index) => (
+              {people.map((person, index) => (
                 <PersonItem person={person} index={index} key={person.userId} />
               ))}
             </tbody>

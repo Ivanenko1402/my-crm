@@ -1,32 +1,30 @@
 import { Col, Container, Form, Row, Button } from "react-bootstrap";
-import { useDispatch, useSelector } from "react-redux";
+import {  useSelector } from "react-redux";
 import { Link, useParams } from "react-router-dom";
 import { useVerificationForm } from "../../../Hooks/useVerificationForm";
-import { useCallback } from "react";
+
+const getPerson = (list, id) => {
+  if (id === 'new') {
+    return {};
+  }
+
+  return list.find((p) => p.userId === +id)
+};
+
+const initFormField = (data) => {
+  return {
+    userName: data.displayName ?? '',
+    userEmail: data.email ?? '',
+    userPhone: data.phoneNumber || '',
+    userRole: data.role || '',
+    userId: data.userId || Number(new Date().toLocaleTimeString().split(':').join('')),
+  };
+};
 
 export const PersonEntity = () => {
-  const getPerson = useCallback((list, id) => {
-    if (id === 'new') {
-      return {};
-    }
-  
-    return list.find((p) => p.userId === id)
-  }, []);
-
-  const initFormField = useCallback((data) => {
-    return {
-      userName: data.displayName ?? '',
-      userEmail: data.email ?? '',
-      userPhone: data.phoneNumber || '',
-      userRole: data.role || '',
-      userId: data.userId || Number(new Date().toLocaleTimeString().split(':').join('')),
-    };
-  }, []);
-
-  const { peopleList } = useSelector((state) => state.people);
+  const { people } = useSelector((state) => state.people);
   const { id } = useParams();
-  const person = getPerson(peopleList, id);
-
+  const person = getPerson(people, id);
   const initValues = initFormField(person);
 
   const [
@@ -34,7 +32,7 @@ export const PersonEntity = () => {
     onChangeForm,
     errors,
     submitForm,
-  ] = useVerificationForm(initValues);
+  ] = useVerificationForm(initValues, 'person');
 
   return (
     <Container>
