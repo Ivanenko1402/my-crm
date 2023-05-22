@@ -48,6 +48,8 @@ function errorProcesser(event) {
   return [fieldName, fieldValue];
 };
 
+<input type="text" value="example" data-cType='myInput' />
+
 const inputStrategies = {
   text(e) {
     return e.target.value;
@@ -73,16 +75,8 @@ const inputStrategies = {
     return e.target.value;
   },
 
-  arrayMultiSelect: [],
-
-  'select-multiple'(e) {
-    if (this.arrayMultiSelect.includes(+e.target.value)) {
-      this.arrayMultiSelect = this.arrayMultiSelect.filter(v => v !== +e.target.value)
-    } else {
-      this.arrayMultiSelect.push(+e.target.value);
-    }
-
-    return this.arrayMultiSelect;
+  'my-select'(e) {
+    return e.target.value;
   }
 };
 
@@ -100,8 +94,10 @@ export const useVerificationForm = (data, type) => {
   const [formValues, setFormValues] = useState(data);
   const [errors, setErrors] = useState({});
 
+  console.log(formValues.tripPassengers)
+  console.log(errors.tripPassengers)
+
   useEffect(() => {
-    console.log(formValues.tripPassengers)
     inputStrategies.arrayMultiSelect = formValues.tripPassengers ?? [];
   }, [formValues.tripPassengers, people]);
 

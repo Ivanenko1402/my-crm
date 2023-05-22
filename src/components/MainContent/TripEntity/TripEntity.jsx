@@ -1,27 +1,29 @@
-import { Button, Col, Container, Form, Row } from "react-bootstrap"
-import { Link, useParams } from "react-router-dom"
+import { Button, Col, Container, Form, Row } from "react-bootstrap";
+import { Link, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { useCallback, useEffect } from "react";
 import { useVerificationForm } from "../../../Hooks/useVerificationForm";
 import { getPersons } from "../../../store/slices/peopleSlice";
+import { CustomSelect } from "./CustomSelect/CustomSelect";
 
 export const TripEntity = () => {
   const getData = useCallback((list, id) => {
-    if (id === 'new') {
+    if (id === "new") {
       return {};
     }
-  
-    return list.find((p) => p.id === +id)
+
+    return list.find((p) => p.id === +id);
   }, []);
 
   const initFormField = useCallback((data) => {
     return {
-      tripDeparture: data?.from || '',
-      tripDestination: data?.to || '',
-      tripDriver: data.driver?.userId || '',
-      tripCost: data?.cost || '',
-      tripPassengers: data.passengers?.map(p => p.userId) ?? [],
-      tripId: data?.id || Number(new Date().toLocaleTimeString().split(':').join('')),
+      tripDeparture: data?.from || "",
+      tripDestination: data?.to || "",
+      tripDriver: data.driver?.userId || "",
+      tripCost: data?.cost || "",
+      tripPassengers: data.passengers?.map((p) => p.userId) ?? [],
+      tripId:
+        data?.id || Number(new Date().toLocaleTimeString().split(":").join("")),
     };
   }, []);
 
@@ -32,7 +34,7 @@ export const TripEntity = () => {
     if (!people.length) {
       dispatch(getPersons());
     }
-  }, [dispatch, people.length])
+  }, [dispatch, people.length]);
 
   const { trips } = useSelector((state) => state.trips);
   const { id } = useParams();
@@ -41,12 +43,10 @@ export const TripEntity = () => {
   const trip = getData(trips, id);
   const initValues = initFormField(trip);
 
-  const [
-    formValues,
-    onChangeForm,
-    errors,
-    submitForm,
-  ] = useVerificationForm(initValues, 'trips');
+  const [formValues, onChangeForm, errors, submitForm] = useVerificationForm(
+    initValues,
+    "trips"
+  );
 
   return (
     <Container>
@@ -57,7 +57,7 @@ export const TripEntity = () => {
             <Form.Control
               placeholder="Departure"
               type="text"
-              name='tripDeparture'
+              name="tripDeparture"
               value={formValues.tripDeparture}
               isInvalid={errors.tripDeparture}
               required
@@ -76,7 +76,7 @@ export const TripEntity = () => {
             <Form.Label>Destination:</Form.Label>
             <Form.Control
               placeholder="Destination"
-              name='tripDestination'
+              name="tripDestination"
               type="text"
               isInvalid={errors.tripDestination}
               required
@@ -97,19 +97,18 @@ export const TripEntity = () => {
           <Form.Group className="mb-3">
             <Form.Label>Driver:</Form.Label>
             <Form.Select
-              name='tripDriver'
+              name="tripDriver"
               isInvalid={errors.tripDriver}
               data-type="tripDriver"
               value={formValues.tripDriver}
               onChange={onChangeForm}
               onBlur={onChangeForm}
             >
-              <option value="" disabled>select a driver</option>
+              <option value="" disabled>
+                select a driver
+              </option>
               {allDrivers.map((driver) => (
-                <option
-                  key={driver.userId}
-                  value={driver.userId}
-                >
+                <option key={driver.userId} value={driver.userId}>
                   {driver.displayName}
                 </option>
               ))}
@@ -143,15 +142,21 @@ export const TripEntity = () => {
       </Row>
       <Row className="justify-content-md-center">
         <Col sm={12} md={4} className="mb-4">
-          <Form.Group className="mb-3">
+          <CustomSelect
+            list={allPassengers}
+            defaultSatate={formValues.tripPassengers}
+            isInvalid={errors.tripPassengers}
+            onChange={onChangeForm}
+          />
+          {/* <Form.Group className="mb-3">
             <Form.Label>Passengers:</Form.Label>
             <Form.Select
               multiple
               name="tripPassengers"
               isInvalid={errors.tripPassengers}
-              value={formValues.tripPassengers}
-              onChange={onChangeForm}
-              onBlur={onChangeForm}
+              // value={formValues.tripPassengers}
+              onChange={(e) => console.log(e.target.value)}
+              // onBlur={onChangeForm}
               required
             >
               <option disabled>select a passenger</option>
@@ -166,18 +171,16 @@ export const TripEntity = () => {
                 {errors.tripPassengers}
               </Form.Control.Feedback>
             )}
-          </Form.Group>
+          </Form.Group> */}
         </Col>
       </Row>
       <Row className="justify-content-md-center">
         <Col md={1}>
-          <Link to='/trips' onClick={e => submitForm(e)}>
-            <Button variant="success">
-              Save
-            </Button>
+          <Link to="/trips" onClick={(e) => submitForm(e)}>
+            <Button variant="success">Save</Button>
           </Link>
         </Col>
       </Row>
     </Container>
-  )
-}
+  );
+};
