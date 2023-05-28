@@ -1,54 +1,4 @@
-import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { createOrEditPerson } from "../store/slices/peopleSlice";
-import { createOrEditTrip } from "../store/slices/tripsSlice";
-
-const errorStrategies = {
-  userName(value) {
-    return !value && 'Can not be empty';
-  },
-
-  userEmail(value) {
-    return !value && 'Can not be empty';
-  },
-
-  userPhone(value) {
-    return value.length < 8 && 'Phone number must be at least 8 digits';
-  },
-
-  userRole(value) {
-    return !value && 'Select a role';
-  },
-
-  tripDeparture(value) {
-    return !value && 'Departure can not be empty';
-  },
-
-  tripDestination(value) {
-    return !value && 'Departure can not be empty';
-  },
-
-  tripDriver(value) {
-    return value === "" && "Select a driver";
-  },
-
-  tripCost(value) {
-    return value.length < 1 && 'Cost cannot be less than 1';
-  },
-
-  tripPassengers(value) {
-    return !value.length && 'Select a passenger';
-  },
-};
-
-function errorProcesser(event) {
-  const fieldName = event.target.name;
-  const fieldValue = errorStrategies[fieldName](event.target.value);
-
-  return [fieldName, fieldValue];
-};
-
-<input type="text" value="example" data-cType='myInput' />
+import { useState } from "react";
 
 const inputStrategies = {
   text(e) {
@@ -87,82 +37,38 @@ function inputProcessor(event) {
   return [fieldName, fieldValue];
 }
 
-export const useVerificationForm = (data, type) => {
-  const { people } = useSelector(state => state.people);
-  const dispatch = useDispatch();
-
+export const useVerificationForm = (data, validateFn, handleSubmit) => {
   const [formValues, setFormValues] = useState(data);
-  const [errors, setErrors] = useState({});
-
-  console.log(formValues.tripPassengers)
-  console.log(errors.tripPassengers)
-
-  useEffect(() => {
-    inputStrategies.arrayMultiSelect = formValues.tripPassengers ?? [];
-  }, [formValues.tripPassengers, people]);
-
+  const [formTouched, setFormTouched] = useState({});
+  const [isPristine, setIsPristine] = useState(true);
+  const errors = validateFn(formValues);
 
   function onChangeForm(event) {
     const [fieldName, fieldValue] = inputProcessor(event);
-    const [errorName, errorValue] = errorProcesser(event);
-
     setFormValues(prev => ({ ...prev, [fieldName]: fieldValue }));
-    setErrors(prev => ({ ...prev, [errorName]: errorValue }));
+    setFormTouched(prev => ({ ...prev, [fieldName]: true }));
   }
 
   const submitForm = (event) => {
-    const formHasError = Object.values(errors).some(e => e !== false);
-    const formFilled = Object.values(formValues).every(f => f !== '');
+    event.preventDefault();
 
-    if (formHasError || !formFilled) {
-      event.preventDefault();
+    if(isPristine) {
+      setIsPristine(false);
+    };
 
-      Object.entries(formValues).forEach(([fieldName, fieldValue]) => {
-        if (!fieldValue) {
-          setErrors(prev => ({ ...prev, [fieldName]: errorStrategies[fieldName](fieldValue) }));
-        }
-
-        if (type === 'trips' && !fieldValue.passengersList?.length) {
-          setErrors(prev => ({ ...prev, tripPassengers: 'Select a passenger' })); 
-        }
-      });
-
+    if(Object.values(errors).length) {
+      console.log(errors)
       return;
     }
 
-    switch (type) {
-      case 'person':
-        dispatch(createOrEditPerson({
-          displayName: formValues.userName,
-          email: formValues.userEmail,
-          phoneNumber: formValues.userPhone,
-          role: formValues.userRole,
-          userId: formValues.userId,
-        }));
-        break;
-
-      case 'trips':
-        dispatch(createOrEditTrip({
-          from: formValues.tripDeparture,
-          to: formValues.tripDestination,
-          driver: people.find(p => p.userId === +formValues.tripDriver),
-          cost: formValues.tripCost,
-          passengers: formValues.tripPassengers.map(id => {
-            return people.find(p => p.userId === id);
-          }),
-          id: formValues.tripId,
-        }))
-        break;
-    
-      default:
-        break;
-    }
+    handleSubmit(formValues, formTouched);
   };
 
   return [
     formValues,
     onChangeForm,
     errors,
+    isPristine,
     submitForm,
   ];
 };

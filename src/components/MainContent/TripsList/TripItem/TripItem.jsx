@@ -1,10 +1,14 @@
 import { Link } from "react-router-dom";
 import { InformationIcon, DeleteIcon } from "../../../icons";
+import { useDispatch } from "react-redux";
+import { deleteTrip } from "../../../../store/slices/tripsSlice";
 
 export const TripItem = ({ trip, index }) => {
   const { id, from, to, driver, passengers } = trip;
+  const dispatch = useDispatch();
 
-  const deleteTrip = async () => {
+  const deleteTargetTrip = (data) => {
+    dispatch(deleteTrip(data));
   }
 
   return (
@@ -24,7 +28,7 @@ export const TripItem = ({ trip, index }) => {
         </Link>
       </td>
       <td className="text-center">
-        <Link onClick={deleteTrip}>
+        <Link onClick={() => deleteTargetTrip(trip)}>
           <DeleteIcon />
         </Link>
       </td>

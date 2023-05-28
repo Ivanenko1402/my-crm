@@ -42,8 +42,8 @@ export const PersonList = () => {
           <Table striped bordered hover size="sm" responsive>
             <thead>
               <tr>
-                {tableHeader.map(cell => (
-                  <th style={{ textAlign: 'center' }} key={cell}>
+                {tableHeader.map((cell, i) => (
+                  <th className="text-center" key={cell + i}>
                     {cell}
                   </th>
                 ))}
