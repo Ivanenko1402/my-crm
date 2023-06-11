@@ -1,7 +1,7 @@
 import { Col, Container, Form, Row, Button } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
-import { useVerificationForm } from "../../../Hooks/useVerificationForm";
+import { useForm } from "../../../Hooks/useForm";
 import { validatePerson } from "./validatePerson";
 import { useCallback } from "react";
 import { createOrEditPerson } from "../../../store/slices/peopleSlice";
@@ -35,6 +35,7 @@ export const PersonEntity = () => {
   const navigate = useNavigate();
 
   const submitFunction = useCallback((data, dataTouched) => {
+    console.log('sbm')
     if (id === "new") {
       const newPerson = {
         displayName: data.userName,
@@ -69,7 +70,7 @@ export const PersonEntity = () => {
     errors,
     isPristine,
     submitForm
-  ] = useVerificationForm(initValues, validatePerson, submitFunction);
+  ] = useForm(initValues, validatePerson, submitFunction);
 
   return (
     <>

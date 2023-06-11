@@ -1,6 +1,8 @@
 export const CustomSelect = ({
-  children,
+  items,
   isInvalid,
+  checkedModel,
+  onCheckedModelChange,
 }) => {
 
   return (
@@ -11,17 +13,31 @@ export const CustomSelect = ({
           isInvalid
             ? 'border border-danger rounded'
             : 'h-100 border rounded'
-          }
+        }
         style={{
           maxHeight: '100px',
           overflowY: 'scroll'
         }}
       >
-        {children}
+        {items.map(person => (
+          <label
+            className={checkedModel && checkedModel.includes(person.userId) ? 'd-flex justify-content-between align-items-center p-1 bg-light' : 'd-flex justify-content-between align-items-center p-1'}
+            key={person.userId}
+          >
+            {`${person.displayName} tel:${person.phoneNumber}`}
+            <input
+              type="checkbox"
+              checked={checkedModel && checkedModel.includes(person.userId)}
+              onChange={() => onCheckedModelChange(person)}
+            />
+          </label>
+        ))}
       </div>
-      <p className='text-danger'>
-        {isInvalid}
-      </p>
+      {isInvalid && (
+        <p className='text-danger'>
+          {isInvalid}
+        </p>
+      )}
     </div>
-    )
+  )
 }

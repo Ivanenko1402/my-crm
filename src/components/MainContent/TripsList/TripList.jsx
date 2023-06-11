@@ -3,7 +3,7 @@ import { Alert, Button, Spinner, Table } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { TripItem } from './TripItem';
-import { getTrips } from "../../../store/slices/tripsSlice";
+import { getTrips, setTargetTrip } from "../../../store/slices/tripsSlice";
 
 const tableHeader = ['#', 'Departure ', 'Destination', 'Driver', 'Passengers', 'Info', 'Action']
 
@@ -17,6 +17,7 @@ export const TripList = () => {
 
   useEffect(() => {
     dispatch(getTrips());
+    dispatch(setTargetTrip(null));
   }, [dispatch])
 
   useEffect(() => {

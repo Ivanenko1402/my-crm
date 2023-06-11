@@ -1,5 +1,11 @@
 {
   "database": {
-    "rules": "database.rules.json"
+    "rules": {
+      "foo": {
+        ".read": true,
+        ".write": true,
+        ".validate": "newData.isString() && newData.val().length < 100"
+      }
+    }
   }
 }

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const inputStrategies = {
   text(e) {
@@ -37,11 +37,42 @@ function inputProcessor(event) {
   return [fieldName, fieldValue];
 }
 
-export const useVerificationForm = (data, validateFn, handleSubmit) => {
+function deepEqual(obj1, obj2) {
+  // Перевіряємо типи об'єктів
+  if (typeof obj1 !== "object" || obj1 === null || typeof obj2 !== "object" || obj2 === null) {
+    return obj1 === obj2;
+  }
+
+  // Отримуємо ключі властивостей об'єктів
+  const keys1 = Object.keys(obj1);
+  const keys2 = Object.keys(obj2);
+
+  // Перевіряємо кількість ключів
+  if (keys1.length !== keys2.length) {
+    return false;
+  }
+
+  // Перевіряємо кожну властивість об'єктів
+  for (let key of keys1) {
+    if (!obj2.hasOwnProperty(key) || !deepEqual(obj1[key], obj2[key])) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+export const useForm = (data, validateFn, handleSubmit) => {
   const [formValues, setFormValues] = useState(data);
   const [formTouched, setFormTouched] = useState({});
   const [isPristine, setIsPristine] = useState(true);
   const errors = validateFn(formValues);
+
+  useEffect(() => {
+    if (!deepEqual(data, formValues)) {
+      setFormValues(data);
+    }
+  }, [data]);
 
   function onChangeForm(event) {
     const [fieldName, fieldValue] = inputProcessor(event);
@@ -57,7 +88,6 @@ export const useVerificationForm = (data, validateFn, handleSubmit) => {
     };
 
     if(Object.values(errors).length) {
-      console.log(errors)
       return;
     }
 

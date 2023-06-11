@@ -3,30 +3,80 @@ import {
   child,
   get,
   getDatabase,
-  ref
+  ref,
+  set,
+  update
 } from 'firebase/database';
-import { workingWithDB } from './workingWithDB';
 import {
   setTrips,
   setIsLoading,
   setError,
   GET_TRIPS,
   DELETE_TRIP,
-  CREATE_OR_EDIT_TRIP
+  CREATE_TRIP,
+  EDIT_TRIP,
+  GET_TARGET_TRIP,
+  setTargetTrip
 } from '../store/slices/tripsSlice';
+import { useDispatch } from 'react-redux';
+
+const db = getDatabase();
 
 function* deleteTripWorker({ payload }) {
-  yield workingWithDB(`trips/${payload.id}`, null);
+  put(setIsLoading(true));
+  const response = yield set(ref(db, `trips/${payload.id}`), null)
+  .then(() => put(setIsLoading(false)))
+  .catch(err => put(setError(err.message)));
   yield fetchTripsWorker();
+
+  return response;
 }
 
-function* createOrEditTripWorker({ payload }) {
-  yield workingWithDB(`trips/${payload.id}`, payload);
+function* updateTripWorker({ payload }) {
+  put(setIsLoading(true));
+  
+  yield update(ref(db, `trips/${payload.id}`), payload)
+    .then(() => console.log('ok'))
+    .catch(err => put(setError(err.message)));
   yield fetchTripsWorker();
+
+  put(setIsLoading(false));
+}
+
+function* createTripWorker({ payload }) {
+  put(setIsLoading(true));
+
+  yield set(ref(db, `trips/${payload.id}`), payload)
+    .then(() => console.log('ok'))
+    .catch(err => put(setError(err.message)));
+  yield fetchTripsWorker();
+
+  put(setIsLoading(false));
+}
+
+function* getTargetTrip({ payload }) {
+  const dbRef = ref(getDatabase());
+
+  yield put(setIsLoading(true));
+
+  try {
+    const snapshot = yield get(child(dbRef, `trips/${payload}`));
+    if (snapshot.exists()) {
+      console.log('snapshot.val()', snapshot.val());
+      yield put(setTargetTrip(snapshot.val()));
+    } else {
+      yield put(setError('No data available'));
+    }
+  } catch (error) {
+    console.error(error);
+  } finally {
+    yield put(setIsLoading(false));
+    yield fetchTripsWorker();
+  }
 }
 
 function* fetchTripsWorker() {
-  yield put(setIsLoading(true));
+  put(setIsLoading(true));
 
   const dbRef = ref(getDatabase());
 
@@ -47,6 +97,8 @@ function* fetchTripsWorker() {
 
 export function* tripsWatcher() {
   yield takeEvery(GET_TRIPS, fetchTripsWorker);
+  yield takeEvery(GET_TARGET_TRIP, getTargetTrip);
   yield takeEvery(DELETE_TRIP, deleteTripWorker);
-  yield takeEvery(CREATE_OR_EDIT_TRIP, createOrEditTripWorker);
+  yield takeEvery(EDIT_TRIP, updateTripWorker);
+  yield takeEvery(CREATE_TRIP, createTripWorker);
 };
