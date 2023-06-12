@@ -1,54 +1,64 @@
-import { Col, Container, Form, Row, Button } from "react-bootstrap";
+import { Col, Container, Form, Row, Button, Spinner } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import { useForm } from "../../../Hooks/useForm";
 import { validatePerson } from "./validatePerson";
-import { useCallback } from "react";
-import { createOrEditPerson } from "../../../store/slices/peopleSlice";
-
-const getPerson = (list, id) => {
-  if (id === "new") {
-    return {};
-  }
-
-  return list.find((p) => p.userId === +id);
-};
-
-const initFormField = (data) => {
-  return {
-    userName: data.displayName ?? "",
-    userEmail: data.email ?? "",
-    userPhone: data.phoneNumber || "",
-    userRole: data.role || "",
-    userId:
-      data.userId ||
-      Number(new Date().toLocaleTimeString().split(":").join("")),
-  };
-};
+import { useCallback, useEffect, useState } from "react";
+import { createPerson, getTargetPerson, updatePerson } from "../../../store/slices/peopleSlice";
 
 export const PersonEntity = () => {
-  const { people, isLoading } = useSelector((state) => state.people);
+  const { targetPerson, isLoading } = useSelector((state) => state.people);
   const { id } = useParams();
-  const person = getPerson(people, id);
-  const initValues = initFormField(person);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const submitFunction = useCallback((data, dataTouched) => {
-    console.log('sbm')
+  useEffect(() => {
+    if (id !== 'new') {
+      dispatch(getTargetPerson(id));
+    }
+  }, [dispatch, id]);
+
+  const getPerson = useCallback((id) => {
     if (id === "new") {
-      const newPerson = {
+      return {};
+    }
+  
+    return targetPerson;
+  }, [targetPerson]);
+  
+  const initFormField = useCallback((data) => {
+    return {
+      userName: data?.displayName ?? "",
+      userEmail: data?.email ?? "",
+      userPhone: data?.phoneNumber || "",
+      userRole: data?.role || "",
+      userId:
+        data?.userId ||
+        Number(new Date().toLocaleTimeString().split(":").join("")),
+    };
+  }, []);
+
+  const [person, setPerson] = useState(getPerson(id));
+  const [initValues, setInitValues] = useState(initFormField(person));
+
+  useEffect(() => {
+    setInitValues(initFormField(person));
+  }, [initFormField, targetPerson, person])
+
+  useEffect(() => {
+    setPerson(targetPerson);
+  }, [targetPerson])
+
+  const submitFunction = useCallback((data, dataTouched) => {
+    if (id === "new") {
+      dispatch(createPerson({
         displayName: data.userName,
         email: data.userEmail,
         phoneNumber: data.userPhone,
         role: data.userRole,
         userId: data.userId
-      }
-
-      dispatch(createOrEditPerson(newPerson));
-      setTimeout(() => {
-        navigate(`/people/${data.userId}`);
-      }, 1000)
+      }));
+      navigate(`/people/${data.userId}`);
       return;
     }
 
@@ -58,10 +68,7 @@ export const PersonEntity = () => {
       editPerson[key] = data[key];
     }
 
-    dispatch(createOrEditPerson(editPerson));
-      setTimeout(() => {
-        navigate(`/people/${data.userId}`);
-      }, 1000)
+    dispatch(updatePerson(editPerson));
   }, [dispatch, id, navigate])
 
   const [
@@ -75,8 +82,8 @@ export const PersonEntity = () => {
   return (
     <>
       {isLoading ? (
-        <div>
-          Loading
+        <div className='d-flex justify-content-center align-items-center h-100 w-100'>
+          <Spinner animation="border" role="status" />
         </div>
       ) : (
         <Container>

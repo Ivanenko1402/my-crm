@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 
 import { PersonItem } from './PersonItem';
-import { getPersons } from "../../../store/slices/peopleSlice";
+import { getPersons, setTargetPerson } from "../../../store/slices/peopleSlice";
 
 export const PersonList = () => {
   const { isLoading, people, error } = useSelector(state => state.people);
@@ -17,6 +17,7 @@ export const PersonList = () => {
   const errorNotification = error && !isLoading;
 
   useEffect(() => {
+    dispatch(setTargetPerson(null))
     dispatch(getPersons());
   }, [dispatch]);
 

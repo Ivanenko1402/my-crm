@@ -1,5 +1,5 @@
 import React, { useEffect, useCallback, useState } from 'react';
-import { Button, Col, Container, Form, Row } from 'react-bootstrap';
+import { Button, Col, Container, Form, Row, Spinner } from 'react-bootstrap';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { useForm } from '../../../Hooks/useForm';
@@ -46,9 +46,7 @@ export const TripEntity = () => {
         tripPassengers: data?.passengers?.map((p) => p.userId) || [],
         tripId: data?.id || Number(new Date().toLocaleTimeString().split(':').join('')),
       };
-    },
-    []
-  );
+    }, []);
 
   const [trip, setTrip] = useState(getData(id));
   const [initValues, setInitValues] = useState(initFormField(trip));
@@ -88,6 +86,7 @@ export const TripEntity = () => {
         })
       );
       navigate(`/trips/${data.tripId}`);
+
     } else {
       const newTrip = {
         id,
@@ -145,8 +144,10 @@ export const TripEntity = () => {
   return (
     <>
       {isLoading ? (
-        <div>Loading</div>
-      ) : trip ? (
+        <div className='d-flex justify-content-center align-items-center h-100 w-100'>
+          <Spinner animation="border" role="status" />
+        </div>
+      ) : (
         <Container className="d-flex flex-column">
           <Form onSubmit={submitForm}>
             <Row className="justify-content-md-center">
@@ -246,7 +247,7 @@ export const TripEntity = () => {
             {isLoading ? 'Loading' : 'Save'}
           </Button>
         </Container>
-      ) : null}
+      )}
     </>
   );
 };

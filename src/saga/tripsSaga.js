@@ -18,7 +18,6 @@ import {
   GET_TARGET_TRIP,
   setTargetTrip
 } from '../store/slices/tripsSlice';
-import { useDispatch } from 'react-redux';
 
 const db = getDatabase();
 
@@ -62,7 +61,6 @@ function* getTargetTrip({ payload }) {
   try {
     const snapshot = yield get(child(dbRef, `trips/${payload}`));
     if (snapshot.exists()) {
-      console.log('snapshot.val()', snapshot.val());
       yield put(setTargetTrip(snapshot.val()));
     } else {
       yield put(setError('No data available'));

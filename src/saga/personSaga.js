@@ -5,24 +5,74 @@ import {
   setIsLoading,
   GET_PERSONS,
   DELETE_PESON,
-  CREATE_OR_EDIT_PESON,
+  setTargetPerson,
+  GET_TARGET_PERSON,
+  CREATE_PESON,
+  UPDATE_PESON,
 } from '../store/slices/peopleSlice';
 import {
   child,
   get,
   getDatabase,
-  ref
+  ref,
+  set,
+  update
 } from 'firebase/database';
-import { workingWithDB } from './workingWithDB';
 
-function* deletePersonWorker({ payload }) {
-  yield workingWithDB(`people/${payload.userId}`, null);
-  yield fetchPersonsWorker();
+const db = getDatabase();
+const dbRef = ref(getDatabase());
+
+function* getTargetPerson({ payload }) {
+  yield put(setIsLoading(true));
+
+  try {
+    const snapshot = yield get(child(dbRef, `people/${payload}`));
+    if (snapshot.exists()) {
+      yield put(setTargetPerson(snapshot.val()));
+    } else {
+      yield put(setError('No data available'));
+    }
+  } catch (error) {
+    console.error(error);
+  } finally {
+    yield put(setIsLoading(false));
+    yield fetchPersonsWorker();
+  }
 }
 
-function* createOrEditPersonWorker({ payload }) {
-  yield workingWithDB(`people/${payload.userId}`, payload);
+function* deletePersonWorker({ payload }) {
+  put(setIsLoading(true));
+  const response = yield set(ref(db, `people/${payload.userId}`), null)
+    .then(() => put(setIsLoading(false)))
+    .catch(err => put(setError(err.message)));
+
   yield fetchPersonsWorker();
+
+  return response;
+}
+
+function* updatePersonWorker({ payload }) {
+  put(setIsLoading(true));
+  
+  yield update(ref(db, `people/${payload.userId}`), payload)
+    .then(() => console.log('ok'))
+    .catch(err => put(setError(err.message)));
+
+  yield fetchPersonsWorker();
+
+  put(setIsLoading(false));
+}
+
+function* createTripWorker({ payload }) {
+  put(setIsLoading(true));
+
+  yield set(ref(db, `people/${payload.userId}`), payload)
+    .then(() => console.log('ok'))
+    .catch(err => put(setError(err.message)));
+
+  yield fetchPersonsWorker();
+
+  put(setIsLoading(false));
 }
 
 function* fetchPersonsWorker() {
@@ -47,6 +97,8 @@ function* fetchPersonsWorker() {
 
 export function* personWatcher() {
   yield takeEvery(GET_PERSONS, fetchPersonsWorker);
+  yield takeEvery(GET_TARGET_PERSON, getTargetPerson);
   yield takeEvery(DELETE_PESON, deletePersonWorker);
-  yield takeEvery(CREATE_OR_EDIT_PESON, createOrEditPersonWorker);
+  yield takeEvery(UPDATE_PESON, updatePersonWorker);
+  yield takeEvery(CREATE_PESON, createTripWorker);
 };

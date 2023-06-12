@@ -38,21 +38,17 @@ function inputProcessor(event) {
 }
 
 function deepEqual(obj1, obj2) {
-  // Перевіряємо типи об'єктів
   if (typeof obj1 !== "object" || obj1 === null || typeof obj2 !== "object" || obj2 === null) {
     return obj1 === obj2;
   }
 
-  // Отримуємо ключі властивостей об'єктів
   const keys1 = Object.keys(obj1);
   const keys2 = Object.keys(obj2);
 
-  // Перевіряємо кількість ключів
   if (keys1.length !== keys2.length) {
     return false;
   }
 
-  // Перевіряємо кожну властивість об'єктів
   for (let key of keys1) {
     if (!obj2.hasOwnProperty(key) || !deepEqual(obj1[key], obj2[key])) {
       return false;
