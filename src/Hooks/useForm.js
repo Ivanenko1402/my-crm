@@ -76,6 +76,9 @@ export const useForm = (data, validateFn, handleSubmit) => {
     setFormTouched(prev => ({ ...prev, [fieldName]: true }));
   }
 
+  const resArr = Object.keys(formTouched).map((key) => [key, formValues[key]]);
+  const formValuesTouched = Object.fromEntries(resArr);
+
   const submitForm = (event) => {
     event.preventDefault();
 
@@ -87,7 +90,7 @@ export const useForm = (data, validateFn, handleSubmit) => {
       return;
     }
 
-    handleSubmit(formValues, formTouched);
+    handleSubmit();
   };
 
   return [
@@ -96,5 +99,6 @@ export const useForm = (data, validateFn, handleSubmit) => {
     errors,
     isPristine,
     submitForm,
+    formValuesTouched,
   ];
 };

@@ -21,13 +21,17 @@ export const CustomSelect = ({
       >
         {items.map(person => (
           <label
-            className={checkedModel && checkedModel.includes(person.userId) ? 'd-flex justify-content-between align-items-center p-1 bg-light' : 'd-flex justify-content-between align-items-center p-1'}
-            key={person.userId}
+            className={
+              checkedModel && checkedModel.includes(person.id)
+                ? 'd-flex justify-content-between align-items-center p-1 bg-light'
+                : 'd-flex justify-content-between align-items-center p-1'
+            }
+            key={person.id}
           >
-            {`${person.displayName} tel:${person.phoneNumber}`}
+            {`${person.userName} tel:${person.userPhone}`}
             <input
               type="checkbox"
-              checked={checkedModel && checkedModel.includes(person.userId)}
+              checked={checkedModel && checkedModel.includes(person.id)}
               onChange={() => onCheckedModelChange(person)}
             />
           </label>

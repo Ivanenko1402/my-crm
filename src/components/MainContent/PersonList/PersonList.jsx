@@ -52,7 +52,7 @@ export const PersonList = () => {
             </thead>
             <tbody>
               {people.map((person, index) => (
-                <PersonItem person={person} index={index} key={person.userId} />
+                <PersonItem person={person} index={index} key={person.id} />
               ))}
             </tbody>
           </Table>

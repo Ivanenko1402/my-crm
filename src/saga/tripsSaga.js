@@ -1,4 +1,4 @@
-import { put, takeEvery } from 'redux-saga/effects';
+import { put, takeEvery, delay } from 'redux-saga/effects';
 import {
   child,
   get,
@@ -11,55 +11,62 @@ import {
   setTrips,
   setIsLoading,
   setError,
+  setTargetTrip,
   GET_TRIPS,
   DELETE_TRIP,
   CREATE_TRIP,
   EDIT_TRIP,
   GET_TARGET_TRIP,
-  setTargetTrip
 } from '../store/slices/tripsSlice';
 
 const db = getDatabase();
+const dbRef = ref(getDatabase());
 
 function* deleteTripWorker({ payload }) {
-  put(setIsLoading(true));
-  const response = yield set(ref(db, `trips/${payload.id}`), null)
-  .then(() => put(setIsLoading(false)))
-  .catch(err => put(setError(err.message)));
-  yield fetchTripsWorker();
+  yield put(setIsLoading(true));
 
-  return response;
+  try {
+    yield set(ref(db, `trips/${payload.id}`), null);
+    yield fetchTripsWorker();
+  } catch (error) {
+    yield put(setError(error.message))
+  } finally {
+    yield put(setIsLoading(false))
+  }
 }
 
 function* updateTripWorker({ payload }) {
-  put(setIsLoading(true));
+  yield put(setIsLoading(true));
+  yield delay(2000);
   
-  yield update(ref(db, `trips/${payload.id}`), payload)
-    .then(() => console.log('ok'))
-    .catch(err => put(setError(err.message)));
-  yield fetchTripsWorker();
-
-  put(setIsLoading(false));
+  try {
+    yield update(ref(db, `trips/${payload.id}`), payload.data);
+  } catch (error) {
+    yield put(setError(error.message))
+  } finally {
+    yield put(setIsLoading(false));
+  }
 }
 
 function* createTripWorker({ payload }) {
-  put(setIsLoading(true));
-
-  yield set(ref(db, `trips/${payload.id}`), payload)
-    .then(() => console.log('ok'))
-    .catch(err => put(setError(err.message)));
-  yield fetchTripsWorker();
-
-  put(setIsLoading(false));
+  yield put(setIsLoading(true));
+  yield delay(2000);
+  
+  try {
+    yield set(ref(db, `trips/${payload.id}`), payload);
+  } catch (error) {
+    yield put(setError(error.message));
+  } finally {
+    yield put(setIsLoading(false))
+  }
 }
 
 function* getTargetTrip({ payload }) {
-  const dbRef = ref(getDatabase());
-
   yield put(setIsLoading(true));
 
   try {
     const snapshot = yield get(child(dbRef, `trips/${payload}`));
+  
     if (snapshot.exists()) {
       yield put(setTargetTrip(snapshot.val()));
     } else {
@@ -69,14 +76,11 @@ function* getTargetTrip({ payload }) {
     console.error(error);
   } finally {
     yield put(setIsLoading(false));
-    yield fetchTripsWorker();
   }
 }
 
 function* fetchTripsWorker() {
-  put(setIsLoading(true));
-
-  const dbRef = ref(getDatabase());
+  yield put(setIsLoading(true));
 
   const payload = yield get(child(dbRef, `trips`))
     .then(snapshot => {
@@ -87,7 +91,7 @@ function* fetchTripsWorker() {
         return [];
       }
     })
-    .catch(error => setError(error));
+    .catch(error => setError(error.message));
 
   yield put(setTrips(payload));
   yield put(setIsLoading(false));

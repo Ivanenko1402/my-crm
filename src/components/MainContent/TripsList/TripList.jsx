@@ -4,11 +4,13 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { TripItem } from './TripItem';
 import { getTrips, setTargetTrip } from "../../../store/slices/tripsSlice";
+import { getPersons } from "../../../store/slices/peopleSlice";
 
 const tableHeader = ['#', 'Departure ', 'Destination', 'Driver', 'Passengers', 'Info', 'Action']
 
 export const TripList = () => {
   const { trips, isLoading, error } = useSelector(state => state.trips);
+  const { people } = useSelector(state => state.people);
   const [list, setList] = useState(trips);
   const dispatch = useDispatch();
   const showList = list.length > 0 && !error && !isLoading;
@@ -16,9 +18,15 @@ export const TripList = () => {
   const errorNotification = error && !isLoading;
 
   useEffect(() => {
+    if (!people.length) {
+      dispatch(getPersons());
+    }
+  })
+
+  useEffect(() => {
     dispatch(getTrips());
     dispatch(setTargetTrip(null));
-  }, [dispatch])
+  }, [])
 
   useEffect(() => {
     setList(trips)

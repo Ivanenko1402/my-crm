@@ -1,10 +1,17 @@
 import { Link } from "react-router-dom";
 import { InformationIcon, DeleteIcon } from "../../../icons";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { deleteTrip } from "../../../../store/slices/tripsSlice";
 
 export const TripItem = ({ trip, index }) => {
-  const { id, from, to, driver, passengers } = trip;
+  const { people } = useSelector(store => store.people);
+  const {
+    id,
+    tripDeparture,
+    tripDestination, 
+    tripDriver,
+    tripPassengers
+  } = trip;
   const dispatch = useDispatch();
 
   const deleteTargetTrip = (data) => {
@@ -14,13 +21,13 @@ export const TripItem = ({ trip, index }) => {
   return (
     <tr key={id}>
       <td>{index + 1}</td>
-      <td>{from}</td>
-      <td>{to}</td>
-      <td>{driver.displayName}</td>
+      <td>{tripDeparture}</td>
+      <td>{tripDestination}</td>
+      <td>{people.find(p => p.id === +tripDriver).userName ?? ''}</td>
       <td>
-        {passengers.length > 1
-          ? `${passengers.length} people`
-          : `${passengers.length} person`}
+        {tripPassengers.length > 1
+          ? `${tripPassengers.length} people`
+          : `${tripPassengers.length} person`}
       </td>
       <td className="text-center">
         <Link to={`/trips/${trip.id}`}>

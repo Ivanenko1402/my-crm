@@ -1,11 +1,15 @@
-import { put, takeEvery } from 'redux-saga/effects';
+import {
+  put,
+  takeEvery,
+  delay
+} from 'redux-saga/effects';
 import {
   setError,
   setPeople,
   setIsLoading,
+  setTargetPerson,
   GET_PERSONS,
   DELETE_PESON,
-  setTargetPerson,
   GET_TARGET_PERSON,
   CREATE_PESON,
   UPDATE_PESON,
@@ -24,6 +28,7 @@ const dbRef = ref(getDatabase());
 
 function* getTargetPerson({ payload }) {
   yield put(setIsLoading(true));
+  yield delay(2000);
 
   try {
     const snapshot = yield get(child(dbRef, `people/${payload}`));
@@ -41,38 +46,42 @@ function* getTargetPerson({ payload }) {
 }
 
 function* deletePersonWorker({ payload }) {
-  put(setIsLoading(true));
-  const response = yield set(ref(db, `people/${payload.userId}`), null)
-    .then(() => put(setIsLoading(false)))
-    .catch(err => put(setError(err.message)));
+  yield put(setIsLoading(true));
+  yield delay(2000);
 
-  yield fetchPersonsWorker();
-
-  return response;
+  try {
+    yield set(ref(db, `people/${payload.userId}`));
+  } catch (error) {
+    yield put(setError(error.message));
+  } finally {
+    yield put(setIsLoading(false));
+  }
 }
 
 function* updatePersonWorker({ payload }) {
-  put(setIsLoading(true));
-  
-  yield update(ref(db, `people/${payload.userId}`), payload)
-    .then(() => console.log('ok'))
-    .catch(err => put(setError(err.message)));
+  yield put(setIsLoading(true));
+  yield delay(2000);
 
-  yield fetchPersonsWorker();
-
-  put(setIsLoading(false));
+  try {
+    yield update(ref(db, `people/${payload.id}`), payload.data)
+  } catch (error) {
+    yield put(setError(error.message));
+  } finally {
+    yield put(setIsLoading(false));
+  }
 }
 
 function* createTripWorker({ payload }) {
-  put(setIsLoading(true));
+  yield put(setIsLoading(true));
+  yield delay(2000);
 
-  yield set(ref(db, `people/${payload.userId}`), payload)
-    .then(() => console.log('ok'))
-    .catch(err => put(setError(err.message)));
-
-  yield fetchPersonsWorker();
-
-  put(setIsLoading(false));
+  try {
+    yield set(ref(db, `people/${payload.id}`), payload);
+  } catch (error) {
+    yield put(setError(error.message));
+  } finally {
+    yield put(setIsLoading(false));
+  }
 }
 
 function* fetchPersonsWorker() {

@@ -6,7 +6,7 @@ import { useDispatch } from "react-redux";
 
 export const PersonItem = ({ person, index }) => {
   const dispatch = useDispatch();
-  const { userId, displayName, phoneNumber, role } = person;
+  const { id, userName, userPhone, userRole } = person;
 
   const removePerson = (data) => {
     dispatch(deletePerson(data))
@@ -14,13 +14,13 @@ export const PersonItem = ({ person, index }) => {
   }
 
   return (
-    <tr key={userId}>
+    <tr key={id}>
       <td>{index + 1}</td>
-      <td>{displayName}</td>
-      <td>{phoneNumber}</td>
-      <td>{role}</td>
+      <td>{userName}</td>
+      <td>{userPhone}</td>
+      <td>{userRole}</td>
       <td className="text-center">
-        <Link to={`/people/${userId}`}>
+        <Link to={`/people/${id}`}>
           <InformationIcon />
         </Link>
       </td>

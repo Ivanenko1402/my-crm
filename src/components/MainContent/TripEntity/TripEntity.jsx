@@ -18,8 +18,8 @@ export const TripEntity = () => {
   const { targetTrip, isLoading } = useSelector(state => state.trips);
 
   const { id } = useParams();
-  const allDrivers = people.filter((person) => person.role === 'Driver');
-  const allPassengers = people.filter((person) => person.role === 'Passenger');
+  const allDrivers = people.filter((person) => person.userRole === 'Driver');
+  const allPassengers = people.filter((person) => person.userRole === 'Passenger');
   const navigate = useNavigate();
 
   const getData = useCallback((id) => {
@@ -39,12 +39,12 @@ export const TripEntity = () => {
   const initFormField = useCallback(
     (data) => {
       return {
-        tripDeparture: data?.from || '',
-        tripDestination: data?.to || '',
-        tripDriver: data?.driver?.userId || '',
-        tripCost: data?.cost || '',
-        tripPassengers: data?.passengers?.map((p) => p.userId) || [],
-        tripId: data?.id || Number(new Date().toLocaleTimeString().split(':').join('')),
+        tripDeparture: data?.tripDeparture || '',
+        tripDestination: data?.tripDestination || '',
+        tripDriver: data?.tripDriver || '',
+        tripCost: data?.tripCost || '',
+        tripPassengers: data?.tripPassengers || [],
+        id: data?.id || Number(new Date().toLocaleTimeString().split(':').join('')),
       };
     }, []);
 
@@ -65,6 +65,7 @@ export const TripEntity = () => {
     errors,
     isPristine,
     submitForm,
+    formValuesTouched,
   ] = useForm(initValues, validateTrip, submtFn);
 
   useEffect(() => {
@@ -73,62 +74,20 @@ export const TripEntity = () => {
     }
   }, [dispatch, people.length]);
 
-  function submtFn(data, dataTouched) {
+  function submtFn() {
     if (id === 'new') {
-      dispatch(
-        createTrip({
-          from: data.tripDeparture,
-          to: data.tripDestination,
-          driver: people.find((person) => +person.userId === +data.tripDriver),
-          cost: data.tripCost,
-          passengers: data.tripPassengers.map((id) => people.find((person) => +person.userId === +id)),
-          id: data.tripId,
-        })
-      );
-      navigate(`/trips/${data.tripId}`);
+      dispatch(createTrip(formValues));
+      navigate(`/trips/${formValues.id}`);
 
     } else {
-      const newTrip = {
-        id,
-      };
-
-      for (const key in dataTouched) {
-        switch (key) {
-          case 'tripDeparture':
-            newTrip.from = data[key];
-            break;
-
-          case 'tripDestination':
-            newTrip.to = data[key];
-            break;
-
-          case 'tripDriver':
-            newTrip.driver = people.find((person) => +person.userId === +data.tripDriver);
-            break;
-
-          case 'tripCost':
-            newTrip.cost = data[key];
-            break;
-
-          case 'tripPassengers':
-            newTrip.passengers = data.tripPassengers?.map((id) =>
-              people.find((person) => +person.userId === +id)
-            );
-            break;
-
-          default:
-            break;
-        }
-      }
-
-      dispatch(editTrip(newTrip));
+      dispatch(editTrip({data: formValuesTouched, id: formValues.id}));
     }
   };
 
   const changeCheckedPerson = (person) => {
-    const updatedState = formValues.tripPassengers.includes(person.userId)
-      ? formValues.tripPassengers.filter((p) => p !== person.userId)
-      : [...formValues.tripPassengers, person.userId];
+    const updatedState = formValues.tripPassengers.includes(person.id)
+      ? formValues.tripPassengers.filter((p) => p !== person.id)
+      : [...formValues.tripPassengers, person.id];
 
     const event = {
       target: {
@@ -142,112 +101,104 @@ export const TripEntity = () => {
   };
 
   return (
-    <>
-      {isLoading ? (
-        <div className='d-flex justify-content-center align-items-center h-100 w-100'>
-          <Spinner animation="border" role="status" />
-        </div>
-      ) : (
-        <Container className="d-flex flex-column">
-          <Form onSubmit={submitForm}>
-            <Row className="justify-content-md-center">
-              <Col sm={12} md={4}>
-                <Form.Group className="mb-3">
-                  <Form.Label>Point of departure:</Form.Label>
-                  <Form.Control
-                    placeholder="Departure"
-                    type="text"
-                    name="tripDeparture"
-                    value={formValues.tripDeparture}
-                    isInvalid={!isPristine && errors.tripDeparture}
-                    onChange={onChangeForm}
-                  />
-                  {!isPristine && (
-                    <Form.Control.Feedback type="invalid">
-                      {errors.tripDeparture}
-                    </Form.Control.Feedback>
-                  )}
-                </Form.Group>
-              </Col>
-              <Col sm={12} md={4}>
-                <Form.Group className="mb-3">
-                  <Form.Label>Destination:</Form.Label>
-                  <Form.Control
-                    placeholder="Destination"
-                    name="tripDestination"
-                    type="text"
-                    isInvalid={!isPristine && errors.tripDestination}
-                    value={formValues.tripDestination}
-                    onChange={onChangeForm}
-                  />
-                  {!isPristine && (
-                    <Form.Control.Feedback type="invalid">
-                      {errors.tripDestination}
-                    </Form.Control.Feedback>
-                  )}
-                </Form.Group>
-              </Col>
-            </Row>
-            <Row className="justify-content-md-center">
-              <Col sm={12} md={4}>
-                <Form.Group className="mb-3">
-                  <Form.Label>Driver:</Form.Label>
-                  <Form.Select
-                    name="tripDriver"
-                    isInvalid={!isPristine && errors.tripDriver}
-                    value={formValues.tripDriver}
-                    onChange={onChangeForm}
-                  >
-                    <option value="" disabled>
-                      Select a driver
-                    </option>
-                    {allDrivers.map((driver) => (
-                      <option key={driver.userId} value={driver.userId}>
-                        {driver.displayName}
-                      </option>
-                    ))}
-                  </Form.Select>
-                  {!isPristine && (
-                    <Form.Control.Feedback type="invalid">
-                      {errors.tripDriver}
-                    </Form.Control.Feedback>
-                  )}
-                </Form.Group>
-              </Col>
-              <Col sm={12} md={4}>
-                <Form.Group className="mb-3">
-                  <Form.Label>Rate:</Form.Label>
-                  <Form.Control
-                    placeholder="100"
-                    name="tripCost"
-                    isInvalid={!isPristine && errors.tripCost}
-                    value={formValues.tripCost}
-                    onChange={onChangeForm}
-                  />
-                  {!isPristine && (
-                    <Form.Control.Feedback type="invalid">
-                      {errors.tripCost}
-                    </Form.Control.Feedback>
-                  )}
-                </Form.Group>
-              </Col>
-            </Row>
-            <Row className="justify-content-md-center">
-              <Col sm={12} md={4} className="mb-4">
-                <CustomSelect
-                  items={allPassengers}
-                  isInvalid={!isPristine && errors.tripPassengers}
-                  checkedModel={formValues.tripPassengers} // checked model: array of ids
-                  onCheckedModelChange={changeCheckedPerson} // returns a new array checkedModel
-                />
-              </Col>
-            </Row>
-          </Form>
-          <Button className="mx-auto" variant="success" onClick={submitForm} type="submit">
-            {isLoading ? 'Loading' : 'Save'}
-          </Button>
-        </Container>
-      )}
-    </>
+    <Container className="d-flex flex-column">
+      <Form onSubmit={submitForm}>
+        <Row className="justify-content-md-center">
+          <Col sm={12} md={4}>
+            <Form.Group className="mb-3">
+              <Form.Label>Point of departure:</Form.Label>
+              <Form.Control
+                placeholder="Departure"
+                type="text"
+                name="tripDeparture"
+                value={formValues.tripDeparture}
+                isInvalid={!isPristine && errors.tripDeparture}
+                onChange={onChangeForm}
+              />
+              {!isPristine && (
+                <Form.Control.Feedback type="invalid">
+                  {errors.tripDeparture}
+                </Form.Control.Feedback>
+              )}
+            </Form.Group>
+          </Col>
+          <Col sm={12} md={4}>
+            <Form.Group className="mb-3">
+              <Form.Label>Destination:</Form.Label>
+              <Form.Control
+                placeholder="Destination"
+                name="tripDestination"
+                type="text"
+                isInvalid={!isPristine && errors.tripDestination}
+                value={formValues.tripDestination}
+                onChange={onChangeForm}
+              />
+              {!isPristine && (
+                <Form.Control.Feedback type="invalid">
+                  {errors.tripDestination}
+                </Form.Control.Feedback>
+              )}
+            </Form.Group>
+          </Col>
+        </Row>
+        <Row className="justify-content-md-center">
+          <Col sm={12} md={4}>
+            <Form.Group className="mb-3">
+              <Form.Label>Driver:</Form.Label>
+              <Form.Select
+                name="tripDriver"
+                isInvalid={!isPristine && errors.tripDriver}
+                value={formValues.tripDriver}
+                onChange={onChangeForm}
+              >
+                <option value="" disabled>
+                  Select a driver
+                </option>
+                {allDrivers.map((driver) => (
+                  <option key={driver.id} value={driver.id}>
+                    {driver.userName}
+                  </option>
+                ))}
+              </Form.Select>
+              {!isPristine && (
+                <Form.Control.Feedback type="invalid">
+                  {errors.tripDriver}
+                </Form.Control.Feedback>
+              )}
+            </Form.Group>
+          </Col>
+          <Col sm={12} md={4}>
+            <Form.Group className="mb-3">
+              <Form.Label>Rate:</Form.Label>
+              <Form.Control
+                placeholder="100"
+                name="tripCost"
+                isInvalid={!isPristine && errors.tripCost}
+                value={formValues.tripCost}
+                onChange={onChangeForm}
+              />
+              {!isPristine && (
+                <Form.Control.Feedback type="invalid">
+                  {errors.tripCost}
+                </Form.Control.Feedback>
+              )}
+            </Form.Group>
+          </Col>
+        </Row>
+        <Row className="justify-content-md-center">
+          <Col sm={12} md={4} className="mb-4">
+            <CustomSelect
+              items={allPassengers}
+              isInvalid={!isPristine && errors.tripPassengers}
+              checkedModel={formValues.tripPassengers}
+              onCheckedModelChange={changeCheckedPerson}
+            />
+          </Col>
+        </Row>
+      </Form>
+      <Button className="mx-auto" variant="success" onClick={submitForm} type="submit">
+        {isLoading ? 'Loading' : 'Save'}
+      </Button>
+    </Container>
   );
 };

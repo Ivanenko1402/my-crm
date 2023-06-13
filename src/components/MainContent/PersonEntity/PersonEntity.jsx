@@ -28,12 +28,12 @@ export const PersonEntity = () => {
   
   const initFormField = useCallback((data) => {
     return {
-      userName: data?.displayName ?? "",
-      userEmail: data?.email ?? "",
-      userPhone: data?.phoneNumber || "",
-      userRole: data?.role || "",
-      userId:
-        data?.userId ||
+      userName: data?.userName ?? "",
+      userEmail: data?.userEmail ?? "",
+      userPhone: data?.userPhone || "",
+      userRole: data?.userRole || "",
+      id:
+        data?.id ||
         Number(new Date().toLocaleTimeString().split(":").join("")),
     };
   }, []);
@@ -49,35 +49,25 @@ export const PersonEntity = () => {
     setPerson(targetPerson);
   }, [targetPerson])
 
-  const submitFunction = useCallback((data, dataTouched) => {
-    if (id === "new") {
-      dispatch(createPerson({
-        displayName: data.userName,
-        email: data.userEmail,
-        phoneNumber: data.userPhone,
-        role: data.userRole,
-        userId: data.userId
-      }));
-      navigate(`/people/${data.userId}`);
-      return;
-    }
-
-    const editPerson = {};
-
-    for (const key in dataTouched) {
-      editPerson[key] = data[key];
-    }
-
-    dispatch(updatePerson(editPerson));
-  }, [dispatch, id, navigate])
-
+  
   const [
     formValues,
     onChangeForm,
     errors,
     isPristine,
-    submitForm
+    submitForm,
+    formValuesTouched,
   ] = useForm(initValues, validatePerson, submitFunction);
+  
+  function submitFunction() {
+    if (id === "new") {
+      dispatch(createPerson(formValues));
+      navigate(`/people/${formValues.id}`);
+      return;
+    }
+
+    dispatch(updatePerson(formValuesTouched));
+  }
 
   return (
     <>
