@@ -3,11 +3,23 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import { useForm } from "../../../Hooks/useForm";
 import { validatePerson } from "./validatePerson";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect } from "react";
 import { createPerson, getTargetPerson, updatePerson } from "../../../store/slices/peopleSlice";
 
+function validate(data) {
+  return {
+    userName: data?.userName ?? "",
+    userEmail: data?.userEmail ?? "",
+    userPhone: data?.userPhone || "",
+    userRole: data?.userRole || "",
+    id:
+      data?.id ||
+      Number(new Date().toLocaleTimeString().split(":").join("")),
+  };
+};
+
 export const PersonEntity = () => {
-  const { targetPerson, isLoading } = useSelector((state) => state.people);
+  const { targetPerson, isLoading, showSpiner } = useSelector((state) => state.people);
   const { id } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -18,38 +30,6 @@ export const PersonEntity = () => {
     }
   }, [dispatch, id]);
 
-  const getPerson = useCallback((id) => {
-    if (id === "new") {
-      return {};
-    }
-  
-    return targetPerson;
-  }, [targetPerson]);
-  
-  const initFormField = useCallback((data) => {
-    return {
-      userName: data?.userName ?? "",
-      userEmail: data?.userEmail ?? "",
-      userPhone: data?.userPhone || "",
-      userRole: data?.userRole || "",
-      id:
-        data?.id ||
-        Number(new Date().toLocaleTimeString().split(":").join("")),
-    };
-  }, []);
-
-  const [person, setPerson] = useState(getPerson(id));
-  const [initValues, setInitValues] = useState(initFormField(person));
-
-  useEffect(() => {
-    setInitValues(initFormField(person));
-  }, [initFormField, targetPerson, person])
-
-  useEffect(() => {
-    setPerson(targetPerson);
-  }, [targetPerson])
-
-  
   const [
     formValues,
     onChangeForm,
@@ -57,7 +37,7 @@ export const PersonEntity = () => {
     isPristine,
     submitForm,
     formValuesTouched,
-  ] = useForm(initValues, validatePerson, submitFunction);
+  ] = useForm(validate(targetPerson), validatePerson, submitFunction);
   
   function submitFunction() {
     if (id === "new") {
@@ -71,7 +51,7 @@ export const PersonEntity = () => {
 
   return (
     <>
-      {isLoading ? (
+      {showSpiner ? (
         <div className='d-flex justify-content-center align-items-center h-100 w-100'>
           <Spinner animation="border" role="status" />
         </div>
@@ -161,7 +141,13 @@ export const PersonEntity = () => {
             </Row>
             <Row className="justify-content-md-center">
               <Col md={1}>
-                <Button variant="success" type="submit">Save</Button>
+                <Button
+                  variant="success"
+                  type="submit"
+                  disabled={isLoading}
+                >
+                  {isLoading ? 'Loading' : 'Save'}
+                </Button>
               </Col>
             </Row>
           </Form>

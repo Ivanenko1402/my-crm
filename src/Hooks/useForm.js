@@ -49,7 +49,7 @@ function deepEqual(obj1, obj2) {
     return false;
   }
 
-  for (let key of keys1) {
+  for (const key of keys1) {
     if (!obj2.hasOwnProperty(key) || !deepEqual(obj1[key], obj2[key])) {
       return false;
     }
@@ -68,6 +68,7 @@ export const useForm = (data, validateFn, handleSubmit) => {
     if (!deepEqual(data, formValues)) {
       setFormValues(data);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data]);
 
   function onChangeForm(event) {

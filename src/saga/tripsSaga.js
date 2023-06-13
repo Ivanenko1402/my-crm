@@ -17,6 +17,7 @@ import {
   CREATE_TRIP,
   EDIT_TRIP,
   GET_TARGET_TRIP,
+  setShowSpiner,
 } from '../store/slices/tripsSlice';
 
 const db = getDatabase();
@@ -62,7 +63,8 @@ function* createTripWorker({ payload }) {
 }
 
 function* getTargetTrip({ payload }) {
-  yield put(setIsLoading(true));
+  yield put(setShowSpiner(true));
+  yield delay(1000);
 
   try {
     const snapshot = yield get(child(dbRef, `trips/${payload}`));
@@ -75,7 +77,7 @@ function* getTargetTrip({ payload }) {
   } catch (error) {
     console.error(error);
   } finally {
-    yield put(setIsLoading(false));
+    yield put(setShowSpiner(false));
   }
 }
 

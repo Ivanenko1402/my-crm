@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Table, Alert, Button, Spinner } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
@@ -8,22 +8,17 @@ import { getPersons, setTargetPerson } from "../../../store/slices/peopleSlice";
 
 export const PersonList = () => {
   const { isLoading, people, error } = useSelector(state => state.people);
-  const [list, setList] = useState(people);
   const tableHeader = ['#', 'Name', 'Phone', 'Role', 'Edit', 'Delete' ];
   const dispatch = useDispatch();
 
-  const showList = list.length > 0 && !error && !isLoading;
-  const listIsEmpty = !list.length && !error && !isLoading;
+  const showList = people.length > 0 && !error && !isLoading;
+  const listIsEmpty = !people.length && !error && !isLoading;
   const errorNotification = error && !isLoading;
 
   useEffect(() => {
     dispatch(setTargetPerson(null))
     dispatch(getPersons());
   }, [dispatch]);
-
-  useEffect(() => {
-    setList(people)
-  }, [people])
 
   return (
     <>

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Alert, Button, Spinner, Table } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
@@ -11,10 +11,9 @@ const tableHeader = ['#', 'Departure ', 'Destination', 'Driver', 'Passengers', '
 export const TripList = () => {
   const { trips, isLoading, error } = useSelector(state => state.trips);
   const { people } = useSelector(state => state.people);
-  const [list, setList] = useState(trips);
   const dispatch = useDispatch();
-  const showList = list.length > 0 && !error && !isLoading;
-  const listIsEmpty = !list.length && !error && !isLoading;
+  const showList = trips.length > 0 && !error && !isLoading;
+  const listIsEmpty = !trips.length && !error && !isLoading;
   const errorNotification = error && !isLoading;
 
   useEffect(() => {
@@ -26,11 +25,7 @@ export const TripList = () => {
   useEffect(() => {
     dispatch(getTrips());
     dispatch(setTargetTrip(null));
-  }, [])
-
-  useEffect(() => {
-    setList(trips)
-  }, [trips])
+  }, [dispatch])
 
   return (
     <>
@@ -58,7 +53,7 @@ export const TripList = () => {
               </tr>
             </thead>
             <tbody>
-              {list.map((trip, i) => (
+              {trips.map((trip, i) => (
                 <TripItem trip={trip} index={i} key={trip.id} />
               ))}
             </tbody>

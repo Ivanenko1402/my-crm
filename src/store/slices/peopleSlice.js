@@ -4,6 +4,7 @@ const initialState = {
   people: [],
   targetPerson: null,
   isLoading: true,
+  showSpiner: false,
   error: '',
 };
 
@@ -26,6 +27,10 @@ const peopleSlice = createSlice({
     setIsLoading: (state, action) => {
       state.isLoading = action.payload;
     },
+
+    setShowSpiner: (state, action) => {
+      state.showSpiner = action.payload;
+    },
   },
 });
 
@@ -41,5 +46,11 @@ export const deletePerson = createAction(DELETE_PESON);
 export const updatePerson = createAction(UPDATE_PESON);
 export const createPerson = createAction(CREATE_PESON);
 
-export const { setPeople, setTargetPerson, setError, setIsLoading } = peopleSlice.actions;
+export const {
+  setPeople,
+  setTargetPerson,
+  setError,
+  setIsLoading,
+  setShowSpiner
+} = peopleSlice.actions;
 export default peopleSlice.reducer;

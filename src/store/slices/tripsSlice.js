@@ -4,6 +4,7 @@ const initialState = {
   trips: [],
   targetTrip: null,
   isLoading: true,
+  showSpiner: false,
   error: '',
 };
 
@@ -26,6 +27,10 @@ const tripsSlice = createSlice({
     setIsLoading: (state, action) => {
       state.isLoading = action.payload;
     },
+
+    setShowSpiner: (state, action) => {
+      state.showSpiner = action.payload;
+    },
   },
 });
 
@@ -45,6 +50,7 @@ export const {
   setTargetTrip,
   setTrips,
   setError,
-  setIsLoading
+  setIsLoading,
+  setShowSpiner,
 } = tripsSlice.actions;
 export default tripsSlice.reducer;

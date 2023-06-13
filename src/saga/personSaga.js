@@ -13,6 +13,7 @@ import {
   GET_TARGET_PERSON,
   CREATE_PESON,
   UPDATE_PESON,
+  setShowSpiner,
 } from '../store/slices/peopleSlice';
 import {
   child,
@@ -27,8 +28,8 @@ const db = getDatabase();
 const dbRef = ref(getDatabase());
 
 function* getTargetPerson({ payload }) {
-  yield put(setIsLoading(true));
-  yield delay(2000);
+  yield put(setShowSpiner(true));
+  yield delay(1000);
 
   try {
     const snapshot = yield get(child(dbRef, `people/${payload}`));
@@ -40,14 +41,12 @@ function* getTargetPerson({ payload }) {
   } catch (error) {
     console.error(error);
   } finally {
-    yield put(setIsLoading(false));
-    yield fetchPersonsWorker();
+    yield put(setShowSpiner(false));
   }
 }
 
 function* deletePersonWorker({ payload }) {
   yield put(setIsLoading(true));
-  yield delay(2000);
 
   try {
     yield set(ref(db, `people/${payload.userId}`));
