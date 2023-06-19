@@ -6,7 +6,7 @@ import { validatePerson } from "./validatePerson";
 import { useEffect } from "react";
 import { createPerson, getTargetPerson, updatePerson } from "../../../store/slices/peopleSlice";
 
-function validate(data) {
+function initPersonForm(data = {}) {
   return {
     userName: data?.userName ?? "",
     userEmail: data?.userEmail ?? "",
@@ -37,8 +37,13 @@ export const PersonEntity = () => {
     isPristine,
     submitForm,
     formValuesTouched,
-  ] = useForm(validate(targetPerson), validatePerson, submitFunction);
-  
+  ] = useForm({
+      data: targetPerson,
+      initData: initPersonForm,
+      validateForm: validatePerson,
+      submitForm: submitFunction,
+    });
+
   function submitFunction() {
     if (id === "new") {
       dispatch(createPerson(formValues));

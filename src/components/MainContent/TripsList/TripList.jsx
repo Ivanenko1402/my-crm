@@ -25,7 +25,7 @@ export const TripList = () => {
   useEffect(() => {
     dispatch(getTrips());
     dispatch(setTargetTrip(null));
-  }, [dispatch])
+  }, [])
 
   return (
     <>

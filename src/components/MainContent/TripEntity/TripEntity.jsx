@@ -12,7 +12,7 @@ import {
 import { CustomSelect } from './CustomSelect/CustomSelect';
 import { validateTrip } from './validateTrip';
 
-function validate(data) {
+function initTripForm(data = {}) {
   return {
     tripDeparture: data?.tripDeparture || '',
     tripDestination: data?.tripDestination || '',
@@ -46,7 +46,12 @@ export const TripEntity = () => {
     isPristine,
     submitForm,
     formValuesTouched,
-  ] = useForm(validate(targetTrip), validateTrip, submtFn);
+  ] = useForm({
+    data: targetTrip,
+    initData: initTripForm,
+    validateForm: validateTrip,
+    handleSubmit: submitFunction,
+  });
 
   useEffect(() => {
     if (!people.length) {
@@ -54,7 +59,7 @@ export const TripEntity = () => {
     }
   }, [dispatch, people.length]);
 
-  function submtFn() {
+  function submitFunction() {
     if (id === 'new') {
       dispatch(createTrip(formValues));
       navigate(`/trips/${formValues.id}`);

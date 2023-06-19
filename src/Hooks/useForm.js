@@ -5,6 +5,10 @@ const inputStrategies = {
     return e.target.value;
   },
 
+  password(e) {
+    return e.target.value;
+  },
+
   number(e) {
     return +e.target.value;
   },
@@ -37,44 +41,29 @@ function inputProcessor(event) {
   return [fieldName, fieldValue];
 }
 
-function deepEqual(obj1, obj2) {
-  if (typeof obj1 !== "object" || obj1 === null || typeof obj2 !== "object" || obj2 === null) {
-    return obj1 === obj2;
-  }
-
-  const keys1 = Object.keys(obj1);
-  const keys2 = Object.keys(obj2);
-
-  if (keys1.length !== keys2.length) {
-    return false;
-  }
-
-  for (const key of keys1) {
-    if (!obj2.hasOwnProperty(key) || !deepEqual(obj1[key], obj2[key])) {
-      return false;
-    }
-  }
-
-  return true;
-}
-
-export const useForm = (data, validateFn, handleSubmit) => {
-  const [formValues, setFormValues] = useState(data);
+export const useForm = ({
+  data,
+  initData,
+  validateForm, 
+  handleSubmit,
+}) => {
+  const [formValues, setFormValues] = useState(initData);
   const [formTouched, setFormTouched] = useState({});
   const [isPristine, setIsPristine] = useState(true);
-  const errors = validateFn(formValues);
+  const errors = validateForm(formValues);
 
   useEffect(() => {
-    if (!deepEqual(data, formValues)) {
-      setFormValues(data);
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    setFormValues((prev) => ({
+      ...prev,
+      ...data,
+    }));
   }, [data]);
 
   function onChangeForm(event) {
     const [fieldName, fieldValue] = inputProcessor(event);
     setFormValues(prev => ({ ...prev, [fieldName]: fieldValue }));
     setFormTouched(prev => ({ ...prev, [fieldName]: true }));
+    return;
   }
 
   const resArr = Object.keys(formTouched).map((key) => [key, formValues[key]]);

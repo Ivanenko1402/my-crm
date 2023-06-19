@@ -3,9 +3,10 @@ import { TripList } from "./components/MainContent/TripsList";
 import { PersonEntity } from "./components/MainContent/PersonEntity";
 import { TripEntity } from "./components/MainContent/TripEntity";
 import { PageNotFound } from "./components/PageNotFound";
-import { LoginPage } from "./components/LoginPage";
-import { AuthPage } from "./components/AuthPage";
 import { PersonList } from "./components/MainContent/PersonList/PersonList";
+import { LoginPage } from "./components/Auth/LoginPage/LoginPage";
+import { RegistrPage } from "./components/Auth/RegistrPage/RegistrPage";
+import { SpinerPage } from "./components/MainContent/SpinerPage/SpinerPage";
 
 export function MyRoutes({ isLoggedIn }) {
   return (
@@ -18,13 +19,16 @@ export function MyRoutes({ isLoggedIn }) {
           <Route path="/trips" element={<TripList />} />
           <Route path="/trips/:id" element={<TripEntity />} />
 
+          <Route path="/registr" element={<SpinerPage />} />
+          <Route path="/login" element={<SpinerPage />} />
+
           <Route path="*" element={<PageNotFound isLoggedIn={isLoggedIn} />} />
         </Routes>
       ) : (
         <Routes>
-          <Route path="*" element={<PageNotFound isLoggedIn={isLoggedIn} />} />
+          <Route path="*" element={<SpinerPage />} />
 
-          <Route path="/registr" element={<AuthPage />} />
+          <Route path="/registr" element={<RegistrPage />} />
           <Route path="/login" element={<LoginPage />} />
         </Routes>
       )}

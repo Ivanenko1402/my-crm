@@ -1,26 +1,22 @@
-import { getAuth, signOut } from "firebase/auth";
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import { Button, Container, Nav, Navbar, Offcanvas } from "react-bootstrap";
+import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
+import { logoutAuth } from "../../store/slices/authSlice";
 
 export function Header() {
   const [show, setShow] = useState(false);
-  const auth = getAuth();
+  const { auth } = useSelector(store => store.auth)
+  const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const handleClose = () => setShow(false);
   const handleToggle = () => setShow((s) => !s);
 
-  const logOut = useCallback(async () => {
-    await signOut(auth)
-      .then(() => {
-        navigate('/login');
-        handleClose();
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  }, [])
+  const handleLogOut = () => {
+    dispatch(logoutAuth());
+    navigate('/login');
+  }
 
   return (
     <Navbar
@@ -30,7 +26,9 @@ export function Header() {
     >
       <Container>
         <Navbar.Toggle onClick={handleToggle} />
-        <Navbar.Brand>User name</Navbar.Brand>
+        <Navbar.Brand>
+          {`Hi, ${auth?.displayName}`}
+        </Navbar.Brand>
         <Navbar.Offcanvas
           placement="start"
           show={show}
@@ -48,11 +46,11 @@ export function Header() {
                 Trips
               </Nav.Link>
             </Nav>
-            {auth.currentUser ? (
+            {auth ? (
               <Button
                 variant="outline-dark"
                 className="mb-4"
-                onClick={logOut}
+                onClick={handleLogOut}
               >
                 Log out
               </Button>
